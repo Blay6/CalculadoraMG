@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Martingala Pro</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
+            color: #1c1e21;
+            margin: 0;
+            padding: 15px;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #007bff;
+            margin-bottom: 20px;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .form-group { margin-bottom: 15px; }
+        .form-group.full-width { grid-column: 1 / -1; }
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            border-top: 1px solid #eee;
+            margin-top: 10px;
+        }
+        .checkbox-group label {
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #0d6efd;
+        }
+        .checkbox-group input {
+            width: auto;
+            margin-right: 10px;
+            transform: scale(1.4);
+        }
+        .options-container {
+            padding-left: 30px;
+            border-left: 3px solid #0d6efd;
+            margin-top: 10px;
+        }
+        .table-container { overflow-x: auto; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #007bff;
+            color: white;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        td { font-size: 14px; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        input:disabled {
+            background-color: #e9ecef;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Calculadora Martingala Pro</h1>
+
+    <!-- CONFIGURACIÓN BÁSICA -->
+    <div class="form-grid">
+        <div class="form-group">
+            <label for="apuestaInicial">Apuesta Inicial:</label>
+            <input type="number" id="apuestaInicial" placeholder="Ej: 10" oninput="actualizarCalculos()">
+        </div>
+        <div class="form-group">
+            <label for="cuota">Cuota:</label>
+            <input type="number" id="cuota" placeholder="Ej: 2.0" step="0.1" oninput="actualizarCalculos()">
+        </div>
+        <div class="form-group full-width">
+            <label for="fichaMinima">Ficha Mínima:</label>
+            <input type="number" id="fichaMinima" placeholder="Ej: 0.50" step="0.01" oninput="actualizarCalculos()">
+        </div>
+         <div class="form-group full-width checkbox-group" style="border-top: none; margin-top: 0;">
+            <input type="checkbox" id="dosDocenas" onchange="actualizarCalculos()">
+            <label for="dosDocenas" style="color: #6c757d; font-size: 1em;">Apuesta en 2 Docenas</label>
+        </div>
+    </div>
+    
+    <!-- MODO SEGURO -->
+    <div class="form-group full-width checkbox-group">
+        <input type="checkbox" id="modoSeguro" onchange="actualizarCalculos()">
+        <label for="modoSeguro">Modo Ganancia Segura</label>
+    </div>
+    <div class="options-container" id="gananciaDeseadaContainer" style="display:none;">
+        <div class="form-group">
+            <label for="gananciaDeseada">Ganancia Deseada por Ronda:</label>
+            <input type="number" id="gananciaDeseada" placeholder="Ej: 10" oninput="actualizarCalculos()">
+        </div>
+    </div>
+
+    <!-- COBERTURA DE CERO -->
+    <div class="form-group full-width checkbox-group">
+        <input type="checkbox" id="coverZero" onchange="actualizarCalculos()">
+        <label for="coverZero" style="color: #198754;">Cubrir el Cero</label>
+    </div>
+    <div class="options-container" id="zeroOptionsContainer" style="display:none;">
+         <div class="form-grid">
+            <div class="form-group">
+                <label for="zeroThreshold">Cubrir cada (riesgo):</label>
+                <input type="number" id="zeroThreshold" placeholder="Ej: 1000" oninput="actualizarCalculos()">
+            </div>
+            <div class="form-group">
+                <label for="zeroPayout">Pago del Cero (1 a X):</label>
+                <input type="number" id="zeroPayout" value="35" oninput="actualizarCalculos()">
+            </div>
+        </div>
+    </div>
+
+    <!-- TABLA DE RESULTADOS -->
+    <div class="table-container">
+        <table id="resultados-tabla">
+            <thead>
+                <tr>
+                    <th>Ronda</th>
+                    <th id="th-docena" style="display:none;">Por Docena</th>
+                    <th>Apostar</th>
+                    <th id="th-zero" style="display:none;">Apostar Cero</th>
+                    <th>Pérdida Acum.</th>
+                    <th>Riesgo Total</th>
+                    <th>Beneficio Final</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    function actualizarCalculos() {
+        // --- OBTENER VALORES DE LA UI ---
+        const apuestaInicial = parseFloat(document.getElementById('apuestaInicial').value);
+        let cuota = parseFloat(document.getElementById('cuota').value);
+        const fichaMinima = parseFloat(document.getElementById('fichaMinima').value);
+        const esDosDocenas = document.getElementById('dosDocenas').checked;
+        const modoSeguroActivado = document.getElementById('modoSeguro').checked;
+        const coverZeroActivado = document.getElementById('coverZero').checked;
+
+        // --- OBTENER ELEMENTOS DE LA UI ---
+        const cuotaInput = document.getElementById('cuota');
+        const tablaBody = document.querySelector("#resultados-tabla tbody");
+        const thDocena = document.getElementById('th-docena');
+        const thZero = document.getElementById('th-zero');
+        
+        // --- LÓGICA DE VISIBILIDAD DE OPCIONES ---
+        document.getElementById('gananciaDeseadaContainer').style.display = modoSeguroActivado ? 'block' : 'none';
+        document.getElementById('zeroOptionsContainer').style.display = coverZeroActivado ? 'block' : 'none';
+        thZero.style.display = coverZeroActivado ? '' : 'none';
+
+        // --- LÓGICA DE 2 DOCENAS ---
+        if (esDosDocenas) {
+            cuota = 1.5;
+            cuotaInput.value = "1.5";
+            cuotaInput.disabled = true;
+            thDocena.style.display = '';
+        } else {
+            cuotaInput.disabled = false;
+            thDocena.style.display = 'none';
+        }
+        
+        tablaBody.innerHTML = '';
+        if (isNaN(apuestaInicial) || isNaN(cuota) || apuestaInicial <= 0 || cuota <= 1) return;
+
+        // --- INICIALIZACIÓN DE VARIABLES DE CÁLCULO ---
+        let perdidaAcumuladaTotal = 0;
+        let zeroThreshold = coverZeroActivado ? parseFloat(document.getElementById('zeroThreshold').value) : NaN;
+        let nextZeroBetThreshold = zeroThreshold;
+
+        // --- BUCLE PRINCIPAL DE CÁLCULO POR RONDA ---
+        for (let i = 1; i <= 12; i++) {
+            // 1. DETERMINAR GANANCIA OBJETIVO
+            let gananciaObjetivoDeRonda;
+            if (modoSeguroActivado) {
+                gananciaObjetivoDeRonda = parseFloat(document.getElementById('gananciaDeseada').value);
+                if (isNaN(gananciaObjetivoDeRonda) || gananciaObjetivoDeRonda <= 0) continue;
+            } else {
+                gananciaObjetivoDeRonda = apuestaInicial * (cuota - 1);
+            }
+
+            // 2. CÁLCULO DE APUESTA AL CERO (SI APLICA)
+            let betOnZero = 0;
+            if (coverZeroActivado && !isNaN(zeroThreshold) && zeroThreshold > 0 && perdidaAcumuladaTotal >= nextZeroBetThreshold) {
+                const zeroPayout = parseFloat(document.getElementById('zeroPayout').value) || 35;
+                // Apuesta necesaria para que el PAGO (no el retorno) cubra las pérdidas
+                betOnZero = perdidaAcumuladaTotal / zeroPayout;
+                if (!isNaN(fichaMinima) && fichaMinima > 0) {
+                    betOnZero = Math.ceil(betOnZero / fichaMinima) * fichaMinima;
+                }
+                nextZeroBetThreshold += zeroThreshold;
+            }
+
+            // 3. CÁLCULO DE APUESTA PRINCIPAL
+            // La apuesta debe cubrir: pérdidas anteriores + costo de la apuesta al cero + la ganancia deseada
+            let apuestaCalculada = (perdidaAcumuladaTotal + betOnZero + gananciaObjetivoDeRonda) / (cuota - 1);
+            if (apuestaCalculada <= 0) break;
+            
+            let apuestaFinalAjustada = apuestaCalculada;
+            if (!isNaN(fichaMinima) && fichaMinima > 0) {
+                apuestaFinalAjustada = Math.ceil(apuestaCalculada / fichaMinima) * fichaMinima;
+            }
+
+            // 4. CÁLCULO DE VALORES PARA LA TABLA
+            const riesgoTotalRonda = perdidaAcumuladaTotal + apuestaFinalAjustada + betOnZero;
+            const gananciaNetaRonda = apuestaFinalAjustada * (cuota - 1);
+            const beneficioFinalReal = gananciaNetaRonda - perdidaAcumuladaTotal - betOnZero;
+            
+            // 5. CONSTRUIR FILA DE LA TABLA
+            const fila = document.createElement('tr');
+            let celdaDocena = esDosDocenas ? `<td>${(apuestaFinalAjustada / 2).toFixed(2)}</td>` : '';
+            let celdaZero = coverZeroActivado ? `<td>${betOnZero > 0 ? betOnZero.toFixed(2) : '---'}</td>` : '';
+            
+            fila.innerHTML = `
+                <td><b>${i}</b></td>
+                ${celdaDocena}
+                <td><b>${apuestaFinalAjustada.toFixed(2)}</b></td>
+                ${celdaZero}
+                <td>${perdidaAcumuladaTotal.toFixed(2)}</td>
+                <td style="color: red;">${riesgoTotalRonda.toFixed(2)}</td>
+                <td style="background-color: #e8f5e9; font-weight: bold; color: #198754;">${beneficioFinalReal.toFixed(2)}</td>
+            `;
+            tablaBody.appendChild(fila);
+
+            // 6. ACTUALIZAR PÉRDIDA ACUMULADA PARA LA SIGUIENTE RONDA
+            perdidaAcumuladaTotal += apuestaFinalAjustada + betOnZero;
+        }
+    }
+    // Carga inicial
+    actualizarCalculos();
+</script>
+
+</body>
+</html>
