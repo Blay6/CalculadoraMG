@@ -524,29 +524,25 @@
             let textoAccion = accionData.texto;
             let baseAccion = accionData.baseValor;
 
-            // Lógica de lectura paso a paso para 2 Docenas
+            // Lógica corregida para la lectura paso a paso
             if (esDosDocenas) {
-                // TOTAL que debe haber en mesa al final del nivel
+                // Apuesta total objetivo para este nivel (ambas docenas)
                 let apuestaTotalObjetivo = apuestaPorPosicion * 2;
 
-                // BASE EN MESA: lo que queda tras pulsar los botones (Repetir / x2).
-                // baseAccion ya es el valor POR POSICIÓN que deja el botón en cada docena,
-                // por lo que el total en mesa tras los botones = baseAccion * 2.
-                let mesaBase = baseAccion * 2;
+                // Base en mesa = total apostado en la ronda anterior × 2 (duplicado por los botones del casino)
+                // En nivel 1, apuestaAnteriorPosicion = 0, por lo que mesaBase = 0
+                let mesaBase = apuestaAnteriorPosicion * 2 * 2;
+                // Explicación: apuestaAnteriorPosicion es la apuesta POR DOCENA de la ronda anterior.
+                // El total de esa ronda fue apuestaAnteriorPosicion * 2.
+                // Los botones del casino lo duplican: (apuestaAnteriorPosicion * 2) * 2
 
-                // FALTANTE TOTAL: diferencia entre el objetivo y lo que ya pusieron los botones
+                // Faltante total a colocar con fichas, dividido entre las 2 docenas
                 let faltanteTotal = apuestaTotalObjetivo - mesaBase;
-
-                // Cada docena recibe la mitad del faltante
                 let faltantePorDocena = faltanteTotal / 2;
 
-                // Paso 2: tras añadir fichas en la 1ª docena
-                //   → la pantalla muestra: mesaBase + faltantePorDocena
-                let subtotal1 = mesaBase + faltantePorDocena;
-
-                // Paso 3: tras añadir fichas en la 2ª docena
-                //   → la pantalla muestra el total completo = apuestaTotalObjetivo
-                let total = apuestaTotalObjetivo;
+                // Lecturas progresivas de la pantalla de la mesa
+                let subtotal1 = mesaBase + faltantePorDocena;   // tras llenar 1ª docena
+                let total     = subtotal1 + faltantePorDocena;  // tras llenar 2ª docena (= apuestaTotalObjetivo)
 
                 if (faltantePorDocena > 0) {
                     textoAccion += `
