@@ -3,572 +3,450 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora Martingala Pro V2</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>Martingala Pro + Configuración Avanzada</title>
     <style>
         :root {
-            --primary: #4f46e5;
-            --primary-hover: #4338ca;
-            --secondary: #64748b;
-            --success: #10b981;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --bg: #f8fafc;
-            --card-bg: #ffffff;
-            --text-main: #0f172a;
-            --text-muted: #64748b;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --secondary: #10b981;
+            --dark: #1e293b;
+            --light: #f8fafc;
             --border: #e2e8f0;
-            --radius: 12px;
+            --danger: #ef4444;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background-color: var(--bg);
-            color: var(--text-main);
+            background-color: #cbd5e1;
+            color: #334155;
+            margin: 0;
             padding: 20px;
-            line-height: 1.5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
 
         .header h1 {
-            color: var(--primary);
-            font-size: 2.5rem;
-            font-weight: 800;
-            letter-spacing: -1px;
+            color: var(--dark);
+            margin: 0;
+            font-size: 2.2rem;
         }
 
-        .header p { color: var(--text-muted); font-size: 1.1rem; }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
+        .layout {
             display: grid;
-            grid-template-columns: 350px 1fr;
+            grid-template-columns: 1fr;
             gap: 20px;
-            align-items: start;
+            width: 100%;
+            max-width: 1400px;
         }
 
-        @media (max-width: 900px) {
-            .container { grid-template-columns: 1fr; }
+        @media(min-width: 1024px) {
+            .layout { grid-template-columns: 350px 1fr; }
         }
 
         .card {
-            background: var(--card-bg);
-            border-radius: var(--radius);
-            padding: 24px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-            border: 1px solid var(--border);
-            margin-bottom: 20px;
-        }
-
-        .card-title {
-            font-size: 1.25rem;
-            font-weight: 700;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: var(--text-main);
-            border-bottom: 2px solid var(--bg);
-            padding-bottom: 10px;
-        }
-
-        .form-group { margin-bottom: 16px; }
-        
-        label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 6px;
-            color: #334155;
-            font-size: 0.95rem;
-        }
-
-        input[type="number"], input[type="text"], select {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: all 0.2s;
-            background-color: #f8fafc;
-        }
-
-        input:focus, select:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-            background-color: #fff;
-        }
-
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 12px;
-            background: #f8fafc;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .checkbox-group:hover { border-color: var(--primary); }
-
-        .checkbox-group input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-            accent-color: var(--primary);
-            cursor: pointer;
-        }
-
-        .checkbox-group label { margin: 0; cursor: pointer; font-size: 1rem; }
-
-        .options-container {
-            padding: 15px;
-            background: #f1f5f9;
-            border-radius: 8px;
-            margin-top: 10px;
-            border-left: 4px solid var(--primary);
-        }
-
-        /* Profile Section */
-        .chip-badges {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            margin-top: 10px;
-        }
-
-        .chip-badge {
-            background: var(--primary);
-            color: white;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .btn {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 10px 16px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.2s;
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-            font-size: 1rem;
-        }
-
-        .btn:hover { background: var(--primary-hover); }
-        .btn-secondary { background: var(--secondary); }
-        .btn-secondary:hover { background: #475569; }
-
-        /* Table Settings */
-        .table-container { overflow-x: auto; border-radius: var(--radius); }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
             background: white;
-            white-space: nowrap;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: var(--card-shadow);
         }
 
-        th, td {
-            padding: 14px 16px;
-            text-align: left;
-            border-bottom: 1px solid var(--border);
+        h2 { margin-top: 0; font-size: 1.2rem; color: var(--primary); border-bottom: 2px solid var(--border); padding-bottom: 10px; }
+
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.9rem; }
+        
+        input[type="number"], select, input[type="text"] {
+            width: 100%; padding: 10px; border: 1px solid var(--border);
+            border-radius: 6px; box-sizing: border-box; font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+        input[type="number"]:focus, select:focus, input[type="text"]:focus {
+            outline: none; border-color: var(--primary);
+        }
+        
+        .btn {
+            background-color: var(--primary); color: white; border: none;
+            padding: 10px 15px; border-radius: 6px; cursor: pointer;
+            font-weight: 600; width: 100%; transition: background 0.2s;
+        }
+        .btn:hover { background-color: var(--primary-hover); }
+        .btn-danger { background-color: var(--danger); }
+        .btn-danger:hover { background-color: #dc2626; }
+        .btn-small { padding: 5px 10px; font-size: 0.8rem; width: auto; }
+
+        .checkbox-group { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; background: var(--light); padding: 10px; border-radius: 6px;}
+        .checkbox-group input[type="checkbox"] { transform: scale(1.3); cursor: pointer; }
+        .checkbox-group label { margin: 0; cursor: pointer; color: var(--dark); font-size: 1rem;}
+
+        /* Chips UI */
+        .chip-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+        .chip {
+            background: var(--dark); color: white; padding: 5px 12px;
+            border-radius: 20px; font-size: 0.85rem; font-weight: bold;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .chip span { cursor: pointer; color: #f87171; }
+        .chip span:hover { color: #ef4444; }
+
+        .flex-row { display: flex; gap: 10px; }
+        .flex-row > * { flex: 1; }
+
+        .options-container { padding-left: 15px; border-left: 3px solid var(--primary); margin-bottom: 15px; }
+
+        /* Table */
+        .table-responsive { overflow-x: auto; border-radius: 8px; border: 1px solid var(--border); }
+        table { width: 100%; border-collapse: collapse; min-width: 800px; }
+        th, td { padding: 12px 10px; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.95rem; }
+        th { background-color: var(--dark); color: white; white-space: nowrap; font-weight: 500; }
+        tr:nth-child(even) { background-color: var(--light); }
+        tr:hover { background-color: #e2e8f0; }
+        
+        .action-cell { background-color: #fffbeb; font-weight: 600; color: #d97706; }
+        .profit-cell { background-color: #ecfdf5; font-weight: bold; color: var(--secondary); }
+        .risk-cell { color: var(--danger); font-weight: 600; }
+
+        .subtotal-box {
+            margin-top: 8px;
+            padding: 8px;
+            background: rgba(0,0,0,0.03);
+            border-left: 3px solid #d97706;
+            border-radius: 4px;
+            font-size: 0.85em;
+            color: #334155;
+            line-height: 1.6;
         }
 
-        th {
-            background-color: #f1f5f9;
-            color: var(--text-main);
-            font-weight: 700;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        tr:last-child td { border-bottom: none; }
-        tr:hover td { background-color: #f8fafc; }
-
-        .action-cell {
-            background-color: #f0fdf4;
-            color: #166534;
-            font-weight: 600;
-            border-radius: 6px;
-            padding: 6px 12px;
-            display: inline-block;
-            border: 1px solid #bbf7d0;
-        }
-
-        .action-arrow { color: #94a3b8; margin: 0 5px; }
-        .loss-text { color: var(--danger); font-weight: 600; }
-        .profit-text { color: var(--success); font-weight: 700; }
-
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-
-        /* Modal simple */
-        #profileForm {
-            display: none;
-            background: #f8fafc;
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px dashed var(--secondary);
-            margin-top: 15px;
-        }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <h1><i class="fas fa-chart-line"></i> Martingala Pro V2</h1>
-    <p>Sistema avanzado de gestión de fichas y cálculo de riesgos</p>
+    <h1>🎰 Calculadora Martingala Pro</h1>
+    <p>Sistema Avanzado con Gestión de Fichas (Soporte 'k') y Acciones Rápidas</p>
 </div>
 
-<div class="container">
-    
-    <!-- BARRA LATERAL (Configuración y Perfiles) -->
-    <div class="sidebar">
-        
-        <!-- SECCIÓN PERFILES -->
-        <div class="card">
-            <h2 class="card-title"><i class="fas fa-coins"></i> Configuración de Mesa</h2>
-            
+<div class="layout">
+    <!-- PANEL IZQUIERDO: PERFILES Y FICHAS -->
+    <div class="left-panel">
+        <div class="card" style="margin-bottom: 20px;">
+            <h2>👤 Perfil de Sesión / Mesa</h2>
             <div class="form-group">
-                <label>Perfil Activo:</label>
-                <select id="profileSelect" onchange="cargarPerfilSeleccionado()"></select>
-            </div>
-
-            <div id="activeProfileInfo" class="form-group" style="margin-bottom: 20px;">
-                <label>Fichas disponibles:</label>
-                <div id="chipDisplay" class="chip-badges"></div>
-                <div style="margin-top: 10px; font-size: 0.9rem; color: var(--secondary);">
-                    <i id="hasDoubleIcon" class="fas fa-check-circle" style="color: var(--success);"></i> 
-                    <span id="hasDoubleText">Botón "X2" Activado</span>
+                <label>Seleccionar Perfil:</label>
+                <div class="flex-row">
+                    <select id="profileSelect" onchange="loadSelectedProfile()"></select>
+                    <button class="btn btn-danger btn-small" onclick="deleteProfile()" title="Borrar Perfil">🗑️</button>
                 </div>
             </div>
-
-            <button class="btn btn-secondary" onclick="toggleProfileForm()"><i class="fas fa-plus"></i> Crear Nuevo Perfil</button>
-
-            <!-- Formulario Nuevo Perfil -->
-            <div id="profileForm">
-                <div class="form-group">
-                    <label>Nombre del Perfil:</label>
-                    <input type="text" id="newProfileName" placeholder="Ej: VIP Ruleta Europea">
-                </div>
-                <div class="form-group">
-                    <label>Fichas (Separadas por comas):</label>
-                    <input type="text" id="newProfileChips" placeholder="Ej: 50, 250, 500, 2500">
-                </div>
-                <label class="checkbox-group">
-                    <input type="checkbox" id="newProfileDouble" checked>
-                    <span>La mesa tiene botón "x2"</span>
-                </label>
-                <div class="grid-2" style="margin-top: 15px;">
-                    <button class="btn" onclick="guardarPerfil()">Guardar</button>
-                    <button class="btn btn-secondary" onclick="toggleProfileForm()">Cancelar</button>
+            <div class="form-group">
+                <label>Crear Nuevo Perfil:</label>
+                <div class="flex-row">
+                    <input type="text" id="newProfileName" placeholder="Ej: Ruleta VIP">
+                    <button class="btn btn-small" onclick="createProfile()">Guardar</button>
                 </div>
             </div>
-            
-            <button class="btn" style="background: var(--danger); margin-top: 15px;" onclick="eliminarPerfilActual()">
-                <i class="fas fa-trash"></i> Eliminar Perfil
-            </button>
+
+            <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 15px 0;">
+
+            <div class="form-group">
+                <label>Fichas Disponibles en la Mesa:</label>
+                <div class="flex-row">
+                    <input type="text" id="newChipValue" placeholder="Ej: 500 o 2.5k">
+                    <button class="btn btn-small" onclick="addChip()">Añadir 🪙</button>
+                </div>
+                <div class="chip-container" id="chipList">
+                    <!-- Fichas renderizadas aquí -->
+                </div>
+            </div>
+
+            <div class="checkbox-group" style="background-color: #eff6ff; border: 1px solid #bfdbfe;">
+                <input type="checkbox" id="hasX2Button" onchange="updateProfileSettings()">
+                <label for="hasX2Button">La mesa tiene botón "x2" (Duplicar)</label>
+            </div>
         </div>
 
-        <!-- SECCIÓN ESTRATEGIA -->
+        <!-- CONFIGURACIÓN DE LA ESTRATEGIA -->
         <div class="card">
-            <h2 class="card-title"><i class="fas fa-chess-knight"></i> Estrategia General</h2>
+            <h2>⚙️ Estrategia General</h2>
+            <div class="form-group">
+                <label>Apuesta Inicial Mínima (Base):</label>
+                <input type="text" id="apuestaInicial" value="1k" placeholder="Ej: 10 o 1k" oninput="actualizarCalculos()">
+            </div>
+            <div class="form-group">
+                <label>Cuota (Multiplicador):</label>
+                <input type="number" id="cuota" value="2.0" step="0.1" oninput="actualizarCalculos()">
+            </div>
             
-            <div class="grid-2">
-                <div class="form-group">
-                    <label>Apuesta Inicial:</label>
-                    <input type="number" id="apuestaInicial" value="50" oninput="actualizarCalculos()">
-                </div>
-                <div class="form-group">
-                    <label>Cuota de Pago:</label>
-                    <input type="number" id="cuota" value="2.0" step="0.1" oninput="actualizarCalculos()">
-                </div>
-            </div>
-
-            <label class="checkbox-group" style="margin-bottom: 15px;">
+            <div class="checkbox-group">
                 <input type="checkbox" id="dosDocenas" onchange="actualizarCalculos()">
-                <span>Apuesta en 2 Docenas / Columnas</span>
-            </label>
-
-            <!-- Modo Seguro -->
-            <label class="checkbox-group">
-                <input type="checkbox" id="modoSeguro" onchange="actualizarCalculos()">
-                <span>Fijar Ganancia (Modo Seguro)</span>
-            </label>
-            <div class="options-container" id="gananciaDeseadaContainer" style="display:none;">
-                <label>Ganancia Neta Deseada:</label>
-                <input type="number" id="gananciaDeseada" value="50" oninput="actualizarCalculos()">
+                <label for="dosDocenas">Apuesta en 2 Docenas/Columnas</label>
             </div>
 
-            <div style="margin-top: 15px;"></div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="modoSeguro" onchange="actualizarCalculos()">
+                <label for="modoSeguro">Modo Ganancia Segura</label>
+            </div>
+            <div class="options-container" id="gananciaDeseadaContainer" style="display:none;">
+                <div class="form-group">
+                    <label>Ganancia Deseada por Ronda:</label>
+                    <input type="text" id="gananciaDeseada" value="10" placeholder="Ej: 500 o 1k" oninput="actualizarCalculos()">
+                </div>
+            </div>
 
-            <!-- Cubrir Cero -->
-            <label class="checkbox-group">
+            <div class="checkbox-group">
                 <input type="checkbox" id="coverZero" onchange="actualizarCalculos()">
-                <span>Protección del Cero (0)</span>
-            </label>
+                <label for="coverZero">Cubrir el Cero (Seguro)</label>
+            </div>
             <div class="options-container" id="zeroOptionsContainer" style="display:none;">
                 <div class="form-group">
-                    <label>Cubrir cuando la pérdida supere:</label>
-                    <input type="number" id="zeroThreshold" value="1000" oninput="actualizarCalculos()">
+                    <label>Cubrir cuando Pérdida supere:</label>
+                    <input type="text" id="zeroThreshold" value="1k" placeholder="Ej: 1k" oninput="actualizarCalculos()">
                 </div>
                 <div class="form-group">
-                    <label>Pago del Cero (Normalmente 36):</label>
-                    <input type="number" id="zeroPayout" value="36" oninput="actualizarCalculos()">
+                    <label>Pago del Cero (1 a X):</label>
+                    <input type="number" id="zeroPayout" value="35" oninput="actualizarCalculos()">
                 </div>
             </div>
-
         </div>
     </div>
 
-    <!-- ÁREA PRINCIPAL (Resultados) -->
-    <div class="main-content">
-        <div class="card" style="margin-bottom: 0;">
-            <h2 class="card-title"><i class="fas fa-table"></i> Hoja de Ruta de Apuestas</h2>
-            <div class="table-container">
-                <table id="resultados-tabla">
-                    <thead>
-                        <tr>
-                            <th>Ronda</th>
-                            <th id="th-docena" style="display:none;">Por Docena</th>
-                            <th>Total Mesa</th>
-                            <th id="th-zero" style="display:none;">Al Cero</th>
-                            <th>¿Qué hacer en pantalla? <i class="fas fa-mouse-pointer" style="color:var(--primary)"></i></th>
-                            <th>Pérdida Acum.</th>
-                            <th>Beneficio</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Los datos se inyectan aquí con JS -->
-                    </tbody>
-                </table>
-            </div>
+    <!-- PANEL DERECHO: CALCULADORA Y RESULTADOS -->
+    <div class="right-panel card">
+        <h2>📊 Plan de Apuestas Sugerido</h2>
+        <div class="table-responsive">
+            <table id="resultados-tabla">
+                <thead>
+                    <tr>
+                        <th>Nivel</th>
+                        <th id="th-docena" style="display:none;">Por Docena</th>
+                        <th>Apuesta Total</th>
+                        <th id="th-zero" style="display:none;">Apostar Cero</th>
+                        <th>Pérdida Acum.</th>
+                        <th>Riesgo Total</th>
+                        <th>Beneficio Neto</th>
+                        <th title="Cómo colocar las fichas en la mesa">⚡ Acción sugerida (Mesa)</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
         </div>
+        <p style="font-size: 0.85rem; color: #64748b; margin-top: 15px;">
+            * <b>Soporte de "k" (Miles):</b> Puedes ingresar valores como <b>2.5k</b> (equivalente a 2500) en cualquier campo para agilizar.<br>
+            * <b>Acción sugerida:</b> Calcula la forma más rápida de usar tus fichas y los botones Repetir/x2. Además, en 2 Docenas te da el paso a paso de la mesa para evitar confusiones.
+        </p>
     </div>
-
 </div>
 
 <script>
-    // --- SISTEMA DE PERFILES DE FICHAS ---
-    let perfiles = [];
-    let perfilActual = null;
-
-    const defaultProfiles = [
-        { id: 1, name: "Estándar Baja (0.5 - 100)", chips: [0.5, 1, 5, 25, 100], hasDouble: true },
-        { id: 2, name: "Mesa VIP (50 - 10k)", chips: [50, 500, 2500, 5000, 10000], hasDouble: true },
-        { id: 3, name: "Sin botón x2 (1 - 500)", chips: [1, 5, 10, 50, 100, 500], hasDouble: false }
-    ];
-
-    function inicializarPerfiles() {
-        const guardados = localStorage.getItem('martingalaPerfiles');
-        if (guardados) {
-            perfiles = JSON.parse(guardados);
-        } else {
-            perfiles = [...defaultProfiles];
-            guardarEnLocal();
+    // --- UTILIDADES PARA CONVERTIR "k/K" y FORMATEAR NÚMEROS ---
+    function parseK(valStr) {
+        if (!valStr) return NaN;
+        valStr = String(valStr).trim().toLowerCase().replace(/,/g, '');
+        let mult = 1;
+        if (valStr.endsWith('k')) {
+            mult = 1000;
+            valStr = valStr.slice(0, -1);
         }
-        renderizarSelectPerfiles();
+        return parseFloat(valStr) * mult;
     }
 
-    function guardarEnLocal() {
-        localStorage.setItem('martingalaPerfiles', JSON.stringify(perfiles));
+    function formatK(num) {
+        if (num == null || isNaN(num)) return '-';
+        if (num === 0) return '0';
+        
+        let absNum = Math.abs(num);
+        if (absNum >= 1000) {
+            let kVal = num / 1000;
+            kVal = Math.round(kVal * 100) / 100; // Redondea máx a 2 decimales para los K
+            return kVal + 'k';
+        }
+        return (Math.round(num * 100) / 100).toString();
     }
 
-    function renderizarSelectPerfiles() {
+
+    // --- SISTEMA DE PERFILES Y FICHAS ---
+    let profiles = JSON.parse(localStorage.getItem('martingaleProfiles')) || {
+        "Por Defecto": { chips:[1, 5, 25, 100, 500, 1000], hasX2: true }
+    };
+    let currentProfile = localStorage.getItem('martingaleCurrentProfile') || "Por Defecto";
+    if (!profiles[currentProfile]) currentProfile = Object.keys(profiles)[0];
+
+    function saveToStorage() {
+        localStorage.setItem('martingaleProfiles', JSON.stringify(profiles));
+        localStorage.setItem('martingaleCurrentProfile', currentProfile);
+    }
+
+    function renderProfileSelect() {
         const select = document.getElementById('profileSelect');
         select.innerHTML = '';
-        perfiles.forEach(p => {
-            const option = document.createElement('option');
-            option.value = p.id;
-            option.textContent = p.name;
-            select.appendChild(option);
-        });
-        
-        // Seleccionar el último usado o el primero
-        const lastId = localStorage.getItem('martingalaLastProfile') || perfiles[0].id;
-        select.value = lastId;
-        cargarPerfilSeleccionado();
+        for (let name in profiles) {
+            let opt = document.createElement('option');
+            opt.value = name;
+            opt.textContent = name;
+            if (name === currentProfile) opt.selected = true;
+            select.appendChild(opt);
+        }
     }
 
-    function cargarPerfilSeleccionado() {
-        const id = parseInt(document.getElementById('profileSelect').value);
-        perfilActual = perfiles.find(p => p.id === id) || perfiles[0];
-        localStorage.setItem('martingalaLastProfile', perfilActual.id);
-        
-        // Actualizar UI del perfil
-        const chipContainer = document.getElementById('chipDisplay');
-        chipContainer.innerHTML = '';
-        perfilActual.chips.sort((a,b) => a-b).forEach(chip => {
-            const span = document.createElement('span');
-            span.className = 'chip-badge';
-            span.textContent = chip;
-            chipContainer.appendChild(span);
-        });
-
-        const doubleIcon = document.getElementById('hasDoubleIcon');
-        const doubleText = document.getElementById('hasDoubleText');
-        if (perfilActual.hasDouble) {
-            doubleIcon.className = 'fas fa-check-circle';
-            doubleIcon.style.color = 'var(--success)';
-            doubleText.textContent = 'Botón "X2" Disponible';
-        } else {
-            doubleIcon.className = 'fas fa-times-circle';
-            doubleIcon.style.color = 'var(--danger)';
-            doubleText.textContent = 'Sin Botón "X2"';
-        }
-
+    function loadSelectedProfile() {
+        currentProfile = document.getElementById('profileSelect').value;
+        saveToStorage();
+        renderChips();
+        document.getElementById('hasX2Button').checked = profiles[currentProfile].hasX2;
         actualizarCalculos();
     }
 
-    function toggleProfileForm() {
-        const form = document.getElementById('profileForm');
-        form.style.display = form.style.display === 'block' ? 'none' : 'block';
-    }
-
-    function guardarPerfil() {
-        const name = document.getElementById('newProfileName').value;
-        const chipsRaw = document.getElementById('newProfileChips').value;
-        const hasDouble = document.getElementById('newProfileDouble').checked;
-
-        if(!name || !chipsRaw) {
-            alert("Rellena el nombre y las fichas");
-            return;
-        }
-
-        const chipsArray = chipsRaw.split(',').map(c => parseFloat(c.trim())).filter(c => !isNaN(c) && c > 0);
-        if(chipsArray.length === 0) {
-            alert("Fomato de fichas inválido. Usa números separados por comas.");
-            return;
-        }
-
-        const newProfile = {
-            id: Date.now(),
-            name: name,
-            chips: chipsArray,
-            hasDouble: hasDouble
-        };
-
-        perfiles.push(newProfile);
-        guardarEnLocal();
-        renderizarSelectPerfiles();
-        document.getElementById('profileSelect').value = newProfile.id;
-        cargarPerfilSeleccionado();
-        toggleProfileForm();
-        
-        // Limpiar form
+    function createProfile() {
+        const name = document.getElementById('newProfileName').value.trim();
+        if (!name || profiles[name]) return alert("Nombre inválido o ya existe.");
+        profiles[name] = { chips:[10, 50, 100], hasX2: true }; 
+        currentProfile = name;
         document.getElementById('newProfileName').value = '';
-        document.getElementById('newProfileChips').value = '';
+        saveToStorage();
+        renderProfileSelect();
+        loadSelectedProfile();
     }
 
-    function eliminarPerfilActual() {
-        if(perfiles.length <= 1) {
-            alert("No puedes eliminar el último perfil.");
-            return;
-        }
-        if(confirm(`¿Seguro que quieres eliminar el perfil "${perfilActual.name}"?`)) {
-            perfiles = perfiles.filter(p => p.id !== perfilActual.id);
-            guardarEnLocal();
-            renderizarSelectPerfiles();
+    function deleteProfile() {
+        if (Object.keys(profiles).length <= 1) return alert("No puedes borrar el último perfil.");
+        if (confirm(`¿Borrar perfil "${currentProfile}"?`)) {
+            delete profiles[currentProfile];
+            currentProfile = Object.keys(profiles)[0];
+            saveToStorage();
+            renderProfileSelect();
+            loadSelectedProfile();
         }
     }
 
+    function renderChips() {
+        const container = document.getElementById('chipList');
+        container.innerHTML = '';
+        let chips = profiles[currentProfile].chips.sort((a, b) => a - b);
+        chips.forEach(val => {
+            container.innerHTML += `<div class="chip">🪙 ${formatK(val)} <span onclick="removeChip(${val})">✖</span></div>`;
+        });
+    }
 
-    // --- LÓGICA DE ALGORITMO DE FICHAS Y ACCIONES ---
-    function obtenerDesgloseFichas(cantidad, chipsArray) {
-        if (cantidad <= 0) return "";
-        let fichasOrdenadas = [...chipsArray].sort((a,b) => b-a);
-        let restante = cantidad;
-        let desglose = [];
+    function addChip() {
+        const val = parseK(document.getElementById('newChipValue').value);
+        if (isNaN(val) || val <= 0) return;
+        if (!profiles[currentProfile].chips.includes(val)) {
+            profiles[currentProfile].chips.push(val);
+            saveToStorage();
+            renderChips();
+            actualizarCalculos();
+        }
+        document.getElementById('newChipValue').value = '';
+    }
+
+    function removeChip(val) {
+        profiles[currentProfile].chips = profiles[currentProfile].chips.filter(c => c !== val);
+        saveToStorage();
+        renderChips();
+        actualizarCalculos();
+    }
+
+    function updateProfileSettings() {
+        profiles[currentProfile].hasX2 = document.getElementById('hasX2Button').checked;
+        saveToStorage();
+        actualizarCalculos();
+    }
+
+
+    // --- ALGORITMO DE ACCIONES (CÓMO COLOCAR FICHAS) ---
+    function calcularAccion(apuestaObjetivo, apuestaAnterior) {
+        let chips = profiles[currentProfile].chips.sort((a, b) => b - a); 
+        let hasX2 = profiles[currentProfile].hasX2;
         
-        for (let ficha of fichasOrdenadas) {
-            if (restante >= ficha) {
-                let cantidadFicha = Math.floor(restante / ficha);
-                // Evitar problemas de precisión decimal
-                let totalFicha = cantidadFicha * ficha; 
-                desglose.push(`<b>${cantidadFicha}x</b> ${ficha}`);
-                restante = parseFloat((restante - totalFicha).toFixed(4));
-            }
-        }
-        return desglose.join(' + ');
-    }
+        if (chips.length === 0) return { texto: "Configura fichas en tu perfil", baseValor: 0 };
+        if (apuestaObjetivo <= 0) return { texto: "-", baseValor: 0 };
 
-    function construirInstruccion(target, previousTarget, perfil, esDividido) {
-        if (target === 0) return "-";
+        let opciones =[];
+        // 1. Empezar de cero (Limpiar mesa)
+        opciones.push({ baseNombre: "Colocar", baseValor: 0, clicksBase: 0 });
         
-        let textoPre = esDividido ? "Por cada zona: " : "";
-
-        if (previousTarget === 0) {
-            return `<span class="action-cell">${textoPre}Colocar [ ${obtenerDesgloseFichas(target, perfil.chips)} ]</span>`;
-        }
-
-        let actualEnMesa = previousTarget;
-        let acciones = ["Repetir"];
-
-        if (perfil.hasDouble) {
-            // Mientras duplicar no se pase del target (y no sea exactamente el target final para no hacer loops de más)
-            // Se usa un margen de error pequeño por redondeos (0.001)
-            while ((actualEnMesa * 2) <= target + 0.001) {
-                actualEnMesa *= 2;
-                acciones.push("x2");
+        if (apuestaAnterior > 0) {
+            // 2. Usar Botón Repetir
+            if (apuestaObjetivo >= apuestaAnterior) {
+                opciones.push({ baseNombre: "🔄 Repetir", baseValor: apuestaAnterior, clicksBase: 1 });
+            }
+            // 3. Usar Botón Repetir + Botón x2
+            if (hasX2 && apuestaObjetivo >= (apuestaAnterior * 2)) {
+                opciones.push({ baseNombre: "🔄 Repetir + 🔂 x2", baseValor: apuestaAnterior * 2, clicksBase: 2 });
             }
         }
 
-        let diferencia = parseFloat((target - actualEnMesa).toFixed(4));
+        let mejorOpcion = null;
+        let minimosClicks = Infinity;
+        let mejorTextoFichas = "";
 
-        if (diferencia > 0) {
-            let adicion = obtenerDesgloseFichas(diferencia, perfil.chips);
-            if (adicion) {
-                acciones.push(`Añadir [ ${adicion} ]`);
-            } else {
-                 return `<span class="action-cell">${textoPre}Reiniciar y colocar [ ${obtenerDesgloseFichas(target, perfil.chips)} ]</span>`;
+        for (let opc of opciones) {
+            let diferencia = apuestaObjetivo - opc.baseValor;
+            let clicksFichas = 0;
+            let textoFichasArr =[];
+            let resto = diferencia;
+
+            for (let ficha of chips) {
+                if (resto >= ficha - 0.001) { 
+                    let cantidad = Math.floor((resto + 0.001) / ficha);
+                    clicksFichas += cantidad;
+                    resto -= cantidad * ficha;
+                    textoFichasArr.push(`${cantidad}x${formatK(ficha)}`); 
+                }
+            }
+
+            if (resto < 0.01) {
+                let clicksTotales = opc.clicksBase + clicksFichas;
+                
+                // --- NUEVA REGLA DE DESEMPATE ---
+                // Si la cantidad de clics totales es IGUAL, preferimos la opción que utilice botones 
+                // (es decir, la que tenga un 'baseValor' más alto).
+                if (clicksTotales < minimosClicks || (clicksTotales === minimosClicks && mejorOpcion && opc.baseValor > mejorOpcion.baseValor)) {
+                    minimosClicks = clicksTotales;
+                    mejorOpcion = opc;
+                    mejorTextoFichas = textoFichasArr.join(" + ");
+                }
             }
         }
 
-        const arrow = ' <span class="action-arrow">➔</span> ';
-        return `<span class="action-cell">${textoPre}${acciones.join(arrow)}</span>`;
+        if (!mejorOpcion) return { texto: "Limpiar y colocar manual", baseValor: 0 };
+
+        let resultado = mejorOpcion.baseNombre;
+        if (mejorTextoFichas !== "") {
+            if (resultado !== "Colocar") resultado += " + ";
+            resultado += "🪙 " + mejorTextoFichas;
+        }
+        
+        return { texto: resultado, baseValor: mejorOpcion.baseValor };
     }
 
 
-    // --- MOTOR DE CÁLCULO PRINCIPAL ---
+    // --- LÓGICA DE LA CALCULADORA MARTINGALA ---
     function actualizarCalculos() {
-        if (!perfilActual) return;
-
-        const apuestaInicial = parseFloat(document.getElementById('apuestaInicial').value);
+        const apuestaInicial = parseK(document.getElementById('apuestaInicial').value);
         let cuota = parseFloat(document.getElementById('cuota').value);
-        const esDosDocenas = document.getElementById('dosDocenas').checked;
-        const modoSeguro = document.getElementById('modoSeguro').checked;
-        const coverZero = document.getElementById('coverZero').checked;
         
-        // Ficha mínima dinámica basada en el perfil
-        const fichaMinima = Math.min(...perfilActual.chips);
+        const chips = profiles[currentProfile].chips;
+        const fichaMinima = chips.length > 0 ? Math.min(...chips) : 1;
 
-        // UI toggles
-        document.getElementById('gananciaDeseadaContainer').style.display = modoSeguro ? 'block' : 'none';
-        document.getElementById('zeroOptionsContainer').style.display = coverZero ? 'block' : 'none';
-        
+        const esDosDocenas = document.getElementById('dosDocenas').checked;
+        const modoSeguroActivado = document.getElementById('modoSeguro').checked;
+        const coverZeroActivado = document.getElementById('coverZero').checked;
+
         const cuotaInput = document.getElementById('cuota');
+        const tablaBody = document.querySelector("#resultados-tabla tbody");
         const thDocena = document.getElementById('th-docena');
         const thZero = document.getElementById('th-zero');
         
-        thZero.style.display = coverZero ? '' : 'none';
+        document.getElementById('gananciaDeseadaContainer').style.display = modoSeguroActivado ? 'block' : 'none';
+        document.getElementById('zeroOptionsContainer').style.display = coverZeroActivado ? 'block' : 'none';
+        thZero.style.display = coverZeroActivado ? '' : 'none';
 
         if (esDosDocenas) {
             cuota = 1.5;
@@ -579,96 +457,111 @@
             cuotaInput.disabled = false;
             thDocena.style.display = 'none';
         }
-
-        const tablaBody = document.querySelector("#resultados-tabla tbody");
-        tablaBody.innerHTML = '';
         
+        tablaBody.innerHTML = '';
         if (isNaN(apuestaInicial) || isNaN(cuota) || apuestaInicial <= 0 || cuota <= 1) return;
 
-        let perdidaAcumulada = 0;
-        let zeroThreshold = coverZero ? parseFloat(document.getElementById('zeroThreshold').value) : NaN;
+        let perdidaAcumuladaTotal = 0;
+        let zeroThreshold = coverZeroActivado ? parseK(document.getElementById('zeroThreshold').value) : NaN;
         let nextZeroBetThreshold = zeroThreshold;
         
-        let apuestaAnteriorTotal = 0; // Para calcular si usar "X2"
-        let apuestaAnteriorPorZona = 0;
+        let apuestaAnteriorPosicion = 0;
 
-        for (let i = 1; i <= 15; i++) { // Calculamos hasta 15 rondas de seguridad
-            
-            // 1. Ganancia Objetivo
-            let gananciaObjetivo = modoSeguro 
-                ? parseFloat(document.getElementById('gananciaDeseada').value) 
-                : apuestaInicial * (cuota - 1);
+        for (let i = 1; i <= 15; i++) {
+            let gananciaObjetivoDeRonda;
+            if (modoSeguroActivado) {
+                gananciaObjetivoDeRonda = parseK(document.getElementById('gananciaDeseada').value);
+                if (isNaN(gananciaObjetivoDeRonda) || gananciaObjetivoDeRonda <= 0) break;
+            } else {
+                gananciaObjetivoDeRonda = apuestaInicial * (cuota - 1);
+            }
 
-            if (isNaN(gananciaObjetivo) || gananciaObjetivo <= 0) break;
-
-            // 2. Apuesta al Cero
-            let betZero = 0;
-            if (coverZero && perdidaAcumulada >= nextZeroBetThreshold) {
-                const zeroPayout = parseFloat(document.getElementById('zeroPayout').value) || 36;
-                betZero = perdidaAcumulada / (zeroPayout - 1);
-                betZero = Math.ceil(betZero / fichaMinima) * fichaMinima;
+            let betOnZero = 0;
+            if (coverZeroActivado && !isNaN(zeroThreshold) && zeroThreshold > 0 && perdidaAcumuladaTotal >= nextZeroBetThreshold) {
+                const zeroPayout = parseFloat(document.getElementById('zeroPayout').value) || 35;
+                betOnZero = perdidaAcumuladaTotal / zeroPayout;
+                betOnZero = Math.ceil(betOnZero / fichaMinima) * fichaMinima;
                 nextZeroBetThreshold += zeroThreshold;
             }
 
-            // 3. Apuesta Principal
-            let apuestaCalculada = (perdidaAcumulada + betZero + gananciaObjetivo) / (cuota - 1);
+            let apuestaCalculada = (perdidaAcumuladaTotal + betOnZero + gananciaObjetivoDeRonda) / (cuota - 1);
             if (apuestaCalculada <= 0) break;
             
-            // Redondeo hacia arriba al múltiplo de la ficha mínima del perfil
-            let apuestaFinal = Math.ceil(apuestaCalculada / fichaMinima) * fichaMinima;
+            let apuestaFinalAjustada = Math.ceil(apuestaCalculada / fichaMinima) * fichaMinima;
             
-            let apuestaPorZona = esDosDocenas ? apuestaFinal / 2 : apuestaFinal;
-            
-            // Si es 2 docenas, la ficha minima debe aplicar a cada docena individualmente
-            if(esDosDocenas) {
-                apuestaPorZona = Math.ceil(apuestaPorZona / fichaMinima) * fichaMinima;
-                apuestaFinal = apuestaPorZona * 2;
+            let apuestaPorPosicion = apuestaFinalAjustada;
+            if (esDosDocenas) {
+                apuestaPorPosicion = Math.ceil((apuestaFinalAjustada / 2) / fichaMinima) * fichaMinima;
+                apuestaFinalAjustada = apuestaPorPosicion * 2;
             }
 
-            // 4. Instrucciones en mesa (Magia)
-            let accionString = "";
-            accionString += construirInstruccion(apuestaPorZona, apuestaAnteriorPorZona, perfilActual, esDosDocenas);
+            const riesgoTotalRonda = perdidaAcumuladaTotal + apuestaFinalAjustada + betOnZero;
+            const gananciaNetaRonda = apuestaFinalAjustada * (cuota - 1);
+            const beneficioFinalReal = gananciaNetaRonda - perdidaAcumuladaTotal - betOnZero;
             
-            if (betZero > 0) {
-                 accionString += `<br><span class="action-cell" style="margin-top:4px; background:#fff7ed; color:#c2410c; border-color:#fed7aa;">Al Cero: Colocar [ ${obtenerDesgloseFichas(betZero, perfilActual.chips)} ]</span>`;
+            // Obtener texto de Acción y base sobre la cual se está trabajando
+            let accionData = calcularAccion(apuestaPorPosicion, apuestaAnteriorPosicion);
+            let textoAccion = accionData.texto;
+            let baseAccion = accionData.baseValor;
+
+            // --- LÓGICA DE SUBTOTALES PASO A PASO ---
+            if (esDosDocenas) {
+                let mesaBase = baseAccion * 2; // Total generado inicialmente en mesa (solo usando los botones en ambas docenas)
+                let addedPerDozen = apuestaPorPosicion - baseAccion; // Cantidad a agregar manualmente a cada docena
+                
+                if (addedPerDozen > 0) {
+                    let subtotal1 = mesaBase + addedPerDozen; // Subtotal tras rellenar la primera docena
+                    let total = subtotal1 + addedPerDozen;    // Total final tras rellenar la segunda docena
+                    
+                    let pasoBase = baseAccion > 0 
+                        ? `1. Base en mesa (Botones): <b>${formatK(mesaBase)}</b><br>` 
+                        : '';
+                    
+                    let index1 = baseAccion > 0 ? "2" : "1";
+                    let index2 = baseAccion > 0 ? "3" : "2";
+
+                    textoAccion += `
+                        <div class="subtotal-box">
+                            <b>📍 Lectura en mesa paso a paso:</b><br>
+                            ${pasoBase}
+                            ${index1}. Subtotal tras llenar 1ª Doc: <b>${formatK(subtotal1)}</b><br>
+                            ${index2}. Total final tras llenar 2ª Doc: <b>${formatK(total)}</b>
+                        </div>
+                    `;
+                } else {
+                    textoAccion += `
+                        <div class="subtotal-box">
+                            <b>📍 Total directo en mesa:</b> <b>${formatK(mesaBase)}</b><br>
+                            (No requiere añadir fichas extras)
+                        </div>
+                    `;
+                }
             }
 
-            // 5. Cálculos económicos
-            const riesgoRonda = perdidaAcumulada + apuestaFinal + betZero;
-            const gananciaNeta = apuestaFinal * (cuota - 1);
-            const beneficioReal = gananciaNeta - perdidaAcumulada - betZero;
-
-            // 6. Pintar fila
             const fila = document.createElement('tr');
-            let tdDocena = esDosDocenas ? `<td>${apuestaPorZona.toLocaleString()}</td>` : '';
-            let tdZero = coverZero ? `<td>${betZero > 0 ? betZero.toLocaleString() : '-'}</td>` : '';
-
+            let celdaDocena = esDosDocenas ? `<td><b>${formatK(apuestaPorPosicion)}</b></td>` : '';
+            let celdaZero = coverZeroActivado ? `<td>${betOnZero > 0 ? formatK(betOnZero) : '-'}</td>` : '';
+            
             fila.innerHTML = `
-                <td><b>${i}</b></td>
-                ${tdDocena}
-                <td><b>${apuestaFinal.toLocaleString()}</b></td>
-                ${tdZero}
-                <td>${accionString}</td>
-                <td class="loss-text">${riesgoRonda.toLocaleString()}</td>
-                <td class="profit-text">+${beneficioReal.toLocaleString()}</td>
+                <td><b>Nivel ${i}</b></td>
+                ${celdaDocena}
+                <td><b>${formatK(apuestaFinalAjustada)}</b></td>
+                ${celdaZero}
+                <td>${formatK(perdidaAcumuladaTotal)}</td>
+                <td class="risk-cell">${formatK(riesgoTotalRonda)}</td>
+                <td class="profit-cell">+${formatK(beneficioFinalReal)}</td>
+                <td class="action-cell">${textoAccion}</td>
             `;
             tablaBody.appendChild(fila);
 
-            // Preparar siguiente ciclo
-            perdidaAcumulada += apuestaFinal + betZero;
-            apuestaAnteriorTotal = apuestaFinal;
-            apuestaAnteriorPorZona = apuestaPorZona;
-            
-            // Límite de seguridad visual para no colgar el navegador si los números crecen infinito
-            if(apuestaFinal > 100000000) break;
+            perdidaAcumuladaTotal += apuestaFinalAjustada + betOnZero;
+            apuestaAnteriorPosicion = apuestaPorPosicion; 
         }
     }
 
-    // --- ARRANQUE ---
-    document.addEventListener('DOMContentLoaded', () => {
-        inicializarPerfiles();
-    });
-
+    // --- INICIALIZACIÓN ---
+    renderProfileSelect();
+    loadSelectedProfile();
 </script>
 
 </body>
