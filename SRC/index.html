@@ -524,20 +524,37 @@
             let textoAccion = accionData.texto;
             let baseAccion = accionData.baseValor;
 
-            // Lógica forzada para que SIEMPRE aparezca la estructura del paso a paso (1, 2, 3)
+            // Lógica de lectura paso a paso para 2 Docenas
             if (esDosDocenas) {
-                let mesaBase = baseAccion * 2; 
-                let addedPerDozen = apuestaPorPosicion - baseAccion; 
-                let subtotal1 = mesaBase + addedPerDozen; 
-                let total = subtotal1 + addedPerDozen;    
+                // TOTAL que debe haber en mesa al final del nivel
+                let apuestaTotalObjetivo = apuestaPorPosicion * 2;
 
-                if (addedPerDozen > 0) {
+                // BASE EN MESA: lo que queda tras pulsar los botones (Repetir / x2).
+                // baseAccion ya es el valor POR POSICIÓN que deja el botón en cada docena,
+                // por lo que el total en mesa tras los botones = baseAccion * 2.
+                let mesaBase = baseAccion * 2;
+
+                // FALTANTE TOTAL: diferencia entre el objetivo y lo que ya pusieron los botones
+                let faltanteTotal = apuestaTotalObjetivo - mesaBase;
+
+                // Cada docena recibe la mitad del faltante
+                let faltantePorDocena = faltanteTotal / 2;
+
+                // Paso 2: tras añadir fichas en la 1ª docena
+                //   → la pantalla muestra: mesaBase + faltantePorDocena
+                let subtotal1 = mesaBase + faltantePorDocena;
+
+                // Paso 3: tras añadir fichas en la 2ª docena
+                //   → la pantalla muestra el total completo = apuestaTotalObjetivo
+                let total = apuestaTotalObjetivo;
+
+                if (faltantePorDocena > 0) {
                     textoAccion += `
                         <div class="subtotal-box">
                             <b>📍 Lectura paso a paso:</b><br>
                             1. Base en mesa (Botones): <b>${formatK(mesaBase)}</b><br>
-                            2. Tras llenar 1ª Doc: <b>${formatK(subtotal1)}</b><br>
-                            3. Tras llenar 2ª Doc: <b>${formatK(total)}</b>
+                            2. Tras llenar 1ª Docena: <b>${formatK(subtotal1)}</b><br>
+                            3. Tras llenar 2ª Docena: <b>${formatK(total)}</b>
                         </div>
                     `;
                 } else {
