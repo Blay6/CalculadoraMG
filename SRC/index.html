@@ -33,7 +33,6 @@
 
         .header { text-align: center; margin-bottom: 20px; width: 100%; }
         .header h1 { color: var(--dark); margin: 0; font-size: clamp(1.5rem, 5vw, 2.2rem); line-height: 1.2;}
-        .header p { font-size: clamp(0.85rem, 3vw, 1rem); margin-top: 8px; color: #475569;}
 
         .layout {
             display: grid;
@@ -106,15 +105,15 @@
             border-radius: 8px; 
             border: 1px solid var(--border); 
             max-width: 100%;
-            -webkit-overflow-scrolling: touch; /* Scroll suave en móviles */
+            -webkit-overflow-scrolling: touch; 
             background: white;
         }
         
         table { 
             width: 100%; 
-            border-collapse: separate; /* Necesario para el sticky column */
+            border-collapse: separate; 
             border-spacing: 0;
-            min-width: 700px; /* Obliga el scroll horizontal en pantallas muy chicas */
+            min-width: 700px; 
         }
         
         th, td { 
@@ -130,15 +129,15 @@
         tr:nth-child(even) { background-color: var(--light); }
         tr:hover { background-color: #e2e8f0; }
 
-        /* MAGIA RESPONSIVE: Columna izquierda (Nivel) fija al hacer scroll */
+        /* Columna izquierda (Nivel) fija */
         td:first-child, th:first-child {
             position: sticky;
             left: 0;
             z-index: 2;
-            border-right: 2px solid var(--border); /* Separador visual */
+            border-right: 2px solid var(--border); 
         }
         th:first-child { z-index: 3; background-color: var(--dark); }
-        td:first-child { background-color: inherit; /* Hereda el color de la fila, así respeta el hover y el cebrado */ }
+        td:first-child { background-color: inherit; }
         
         .action-cell { background-color: #fffbeb; font-weight: 600; color: #d97706; min-width: 250px;}
         .profit-cell { background-color: #ecfdf5; font-weight: bold; color: var(--secondary); }
@@ -153,10 +152,9 @@
             font-size: 0.85em;
             color: #334155;
             line-height: 1.5;
-            word-wrap: break-word; /* Evita que números gigantes rompan la caja */
+            word-wrap: break-word; 
         }
 
-        /* MEDIA QUERIES PARA PANTALLAS PEQUEÑAS (MÓVILES VERTICALES) */
         @media(max-width: 600px) {
             body { padding: 10px; }
             .card { padding: 15px; }
@@ -165,7 +163,6 @@
             th, td { padding: 10px 8px; font-size: 0.85rem; }
             .btn-small { padding: 8px 10px; font-size: 0.85rem; }
         }
-
     </style>
 </head>
 <body>
@@ -175,7 +172,6 @@
 </div>
 
 <div class="layout">
-    <!-- PANEL IZQUIERDO: PERFILES Y FICHAS -->
     <div class="left-panel">
         <div class="card" style="margin-bottom: 20px;">
             <h2>👤 Perfil de Sesión / Mesa</h2>
@@ -202,9 +198,7 @@
                     <input type="text" id="newChipValue" placeholder="Ej: 500 o 2.5k">
                     <button class="btn btn-small" onclick="addChip()">Añadir 🪙</button>
                 </div>
-                <div class="chip-container" id="chipList">
-                    <!-- Fichas renderizadas aquí -->
-                </div>
+                <div class="chip-container" id="chipList"></div>
             </div>
 
             <div class="checkbox-group" style="background-color: #eff6ff; border: 1px solid #bfdbfe;">
@@ -213,7 +207,6 @@
             </div>
         </div>
 
-        <!-- CONFIGURACIÓN DE LA ESTRATEGIA -->
         <div class="card" style="margin-bottom: 20px;">
             <h2>⚙️ Estrategia General</h2>
             <div class="form-group">
@@ -258,7 +251,6 @@
         </div>
     </div>
 
-    <!-- PANEL DERECHO: CALCULADORA Y RESULTADOS -->
     <div class="right-panel card">
         <h2>📊 Plan de Apuestas Sugerido</h2>
         <div class="table-responsive">
@@ -286,7 +278,6 @@
 </div>
 
 <script>
-    // --- UTILIDADES PARA CONVERTIR "k/K" y FORMATEAR NÚMEROS ---
     function parseK(valStr) {
         if (!valStr) return NaN;
         valStr = String(valStr).trim().toLowerCase().replace(/,/g, '');
@@ -311,7 +302,6 @@
         return (Math.round(num * 100) / 100).toString();
     }
 
-    // --- SISTEMA DE PERFILES Y FICHAS ---
     let profiles = JSON.parse(localStorage.getItem('martingaleProfiles')) || {
         "Por Defecto": { chips:[1, 5, 25, 100, 500, 1000], hasX2: true }
     };
@@ -399,8 +389,6 @@
         actualizarCalculos();
     }
 
-
-    // --- ALGORITMO DE ACCIONES (CÓMO COLOCAR FICHAS) ---
     function calcularAccion(apuestaObjetivo, apuestaAnterior) {
         let chips = profiles[currentProfile].chips.sort((a, b) => b - a); 
         let hasX2 = profiles[currentProfile].hasX2;
@@ -461,8 +449,6 @@
         return { texto: resultado, baseValor: mejorOpcion.baseValor };
     }
 
-
-    // --- LÓGICA DE LA CALCULADORA MARTINGALA ---
     function actualizarCalculos() {
         const apuestaInicial = parseK(document.getElementById('apuestaInicial').value);
         let cuota = parseFloat(document.getElementById('cuota').value);
@@ -538,34 +524,28 @@
             let textoAccion = accionData.texto;
             let baseAccion = accionData.baseValor;
 
+            // Lógica forzada para que SIEMPRE aparezca la estructura del paso a paso (1, 2, 3)
             if (esDosDocenas) {
                 let mesaBase = baseAccion * 2; 
                 let addedPerDozen = apuestaPorPosicion - baseAccion; 
-                
-                if (addedPerDozen > 0) {
-                    let subtotal1 = mesaBase + addedPerDozen; 
-                    let total = subtotal1 + addedPerDozen;    
-                    
-                    let pasoBase = baseAccion > 0 
-                        ? `1. Base en mesa (Botones): <b>${formatK(mesaBase)}</b><br>` 
-                        : '';
-                    
-                    let index1 = baseAccion > 0 ? "2" : "1";
-                    let index2 = baseAccion > 0 ? "3" : "2";
+                let subtotal1 = mesaBase + addedPerDozen; 
+                let total = subtotal1 + addedPerDozen;    
 
+                if (addedPerDozen > 0) {
                     textoAccion += `
                         <div class="subtotal-box">
                             <b>📍 Lectura paso a paso:</b><br>
-                            ${pasoBase}
-                            ${index1}. Tras llenar 1ª Doc: <b>${formatK(subtotal1)}</b><br>
-                            ${index2}. Tras llenar 2ª Doc: <b>${formatK(total)}</b>
+                            1. Base en mesa (Botones): <b>${formatK(mesaBase)}</b><br>
+                            2. Tras llenar 1ª Doc: <b>${formatK(subtotal1)}</b><br>
+                            3. Tras llenar 2ª Doc: <b>${formatK(total)}</b>
                         </div>
                     `;
                 } else {
                     textoAccion += `
                         <div class="subtotal-box">
-                            <b>📍 Total directo en mesa:</b> <b>${formatK(mesaBase)}</b><br>
-                            <span style="font-size: 0.9em; color: #64748b;">(No requiere añadir fichas)</span>
+                            <b>📍 Lectura paso a paso:</b><br>
+                            1. Base en mesa (Botones): <b>${formatK(mesaBase)}</b><br>
+                            <span style="font-size: 0.9em; color: #64748b;">(Meta alcanzada. No requiere añadir fichas)</span>
                         </div>
                     `;
                 }
