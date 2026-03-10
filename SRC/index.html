@@ -1,19 +1,123 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Martingala Pro + Configuración Avanzada</title>
+    
+    <!-- SCRIPT DE TEMA (Se ejecuta antes de cargar para evitar el flashazo blanco) -->
+    <script>
+        const savedTheme = localStorage.getItem('martingaleTheme');
+        if (savedTheme) {
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        }
+    </script>
+
     <style>
+        /* TEMA CLARO (Variables por defecto) */
         :root {
             --primary: #2563eb;
             --primary-hover: #1d4ed8;
             --secondary: #10b981;
-            --dark: #1e293b;
-            --light: #f8fafc;
-            --border: #e2e8f0;
             --danger: #ef4444;
             --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            
+            --bg-body: #cbd5e1;
+            --bg-card: #ffffff;
+            --border: #e2e8f0;
+            
+            --text-main: #334155;
+            --text-muted: #64748b;
+            --header-text: #1e293b;
+            
+            --input-bg: #ffffff;
+            --input-text: #334155;
+            
+            --checkbox-bg: #f8fafc;
+            --checkbox-blue-bg: #eff6ff;
+            --checkbox-blue-border: #bfdbfe;
+            
+            --table-bg: #ffffff;
+            --table-even: #f8fafc;
+            --table-hover: #e2e8f0;
+            --table-header-bg: #1e293b;
+            --table-header-text: #ffffff;
+            
+            --profit-bg: #ecfdf5;
+            
+            --chip-bg: #1e293b;
+            --chip-text: #ffffff;
+            
+            --pill-target-bg: #eff6ff;
+            --pill-target-border: #bfdbfe;
+            --pill-target-text: #2563eb;
+            
+            --pill-action-bg: #f0fdf4;
+            --pill-action-border: #bbf7d0;
+            --pill-action-text: #166534;
+            
+            --pill-zero-bg: #fff7ed;
+            --pill-zero-border: #fed7aa;
+            --pill-zero-text: #c2410c;
+            
+            --subtotal-bg: rgba(0,0,0,0.03);
+            --subtotal-border: #d97706;
+        }
+
+        /* TEMA OSCURO */[data-theme="dark"] {
+            --primary: #3b82f6;
+            --primary-hover: #60a5fa;
+            --secondary: #34d399;
+            --danger: #f87171;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+            
+            --bg-body: #0f172a;
+            --bg-card: #1e293b;
+            --border: #334155;
+            
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --header-text: #f8fafc;
+            
+            --input-bg: #0f172a;
+            --input-text: #f1f5f9;
+            
+            --checkbox-bg: #0f172a;
+            --checkbox-blue-bg: rgba(59, 130, 246, 0.15);
+            --checkbox-blue-border: rgba(59, 130, 246, 0.3);
+            
+            --table-bg: #1e293b;
+            --table-even: #0f172a;
+            --table-hover: #334155;
+            --table-header-bg: #020617;
+            --table-header-text: #f1f5f9;
+            
+            --profit-bg: rgba(16, 185, 129, 0.12);
+            
+            --chip-bg: #334155;
+            --chip-text: #f1f5f9;
+            
+            --pill-target-bg: rgba(59, 130, 246, 0.2);
+            --pill-target-border: rgba(59, 130, 246, 0.4);
+            --pill-target-text: #60a5fa;
+            
+            --pill-action-bg: rgba(34, 197, 94, 0.15);
+            --pill-action-border: rgba(34, 197, 94, 0.3);
+            --pill-action-text: #86efac;
+            
+            --pill-zero-bg: rgba(249, 115, 22, 0.15);
+            --pill-zero-border: rgba(249, 115, 22, 0.3);
+            --pill-zero-text: #fdba74;
+            
+            --subtotal-bg: rgba(255,255,255,0.05);
+            --subtotal-border: #f59e0b;
+        }
+
+        /* TRANSICIONES SUAVES AL CAMBIAR DE TEMA */
+        body, .card, input, select, table, th, td, .action-steps-pill, .action-target, .subtotal-box {
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
         }
 
         /* RESET BÁSICO PARA RESPONSIVE */
@@ -21,8 +125,8 @@
 
         body {
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background-color: #cbd5e1;
-            color: #334155;
+            background-color: var(--bg-body);
+            color: var(--text-main);
             margin: 0;
             padding: 20px;
             display: flex;
@@ -31,8 +135,37 @@
             min-height: 100vh;
         }
 
-        .header { text-align: center; margin-bottom: 20px; width: 100%; }
-        .header h1 { color: var(--dark); margin: 0; font-size: clamp(1.5rem, 5vw, 2.2rem); line-height: 1.2;}
+        /* HEADER Y BOTÓN DE TEMA */
+        .header { 
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px; 
+            width: 100%; 
+            max-width: 1400px;
+            min-height: 50px;
+        }
+        .header h1 { color: var(--header-text); margin: 0; font-size: clamp(1.5rem, 5vw, 2.2rem); line-height: 1.2;}
+        
+        .theme-toggle-btn {
+            position: absolute;
+            right: 0;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            border-radius: 50%;
+            width: 44px; height: 44px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            box-shadow: var(--card-shadow);
+            display: flex; align-items: center; justify-content: center;
+            transition: transform 0.2s, border-color 0.2s, background-color 0.3s;
+        }
+        .theme-toggle-btn:hover {
+            transform: scale(1.1);
+            border-color: var(--primary);
+        }
 
         .layout {
             display: grid;
@@ -47,7 +180,7 @@
         }
 
         .card {
-            background: white;
+            background: var(--bg-card);
             border-radius: 12px;
             padding: 20px;
             box-shadow: var(--card-shadow);
@@ -59,11 +192,11 @@
         .form-group { margin-bottom: 15px; width: 100%; }
         label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.9rem; }
         
-        /* Font-size 16px evita el auto-zoom en iOS Safari */
         input[type="number"], select, input[type="text"] {
             width: 100%; padding: 10px; border: 1px solid var(--border);
             border-radius: 6px; font-size: 16px; 
-            transition: border-color 0.2s; background-color: #fff;
+            background-color: var(--input-bg);
+            color: var(--input-text);
         }
         input:focus, select:focus { outline: none; border-color: var(--primary); }
         
@@ -78,21 +211,21 @@
         .btn-danger:hover { background-color: #dc2626; }
         .btn-small { padding: 8px 12px; font-size: 0.9rem; width: auto; white-space: nowrap; }
 
-        .checkbox-group { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; background: var(--light); padding: 10px; border-radius: 6px; }
+        .checkbox-group { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; background: var(--checkbox-bg); padding: 10px; border-radius: 6px; }
         .checkbox-group input[type="checkbox"] { transform: scale(1.3); cursor: pointer; flex-shrink: 0; margin-left: 5px; }
-        .checkbox-group label { margin: 0; cursor: pointer; color: var(--dark); font-size: 0.95rem; line-height: 1.3;}
+        .checkbox-group label { margin: 0; cursor: pointer; color: var(--text-main); font-size: 0.95rem; line-height: 1.3;}
 
         /* Chips UI */
         .chip-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
         .chip {
-            background: var(--dark); color: white; padding: 6px 12px;
+            background: var(--chip-bg); color: var(--chip-text); padding: 6px 12px;
             border-radius: 20px; font-size: 0.85rem; font-weight: bold;
             display: flex; align-items: center; gap: 6px;
+            white-space: nowrap; 
         }
-        .chip span { cursor: pointer; color: #f87171; padding: 0 4px; }
-        .chip span:hover { color: #ef4444; }
+        .chip span { cursor: pointer; color: var(--danger); padding: 0 4px; }
+        .chip span:hover { filter: brightness(1.2); }
 
-        /* Flex rows adaptables */
         .flex-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: stretch; }
         .flex-row > input, .flex-row > select { flex: 1 1 0%; min-width: 120px; }
         .flex-row > .btn { flex: 0 0 auto; }
@@ -106,14 +239,14 @@
             border: 1px solid var(--border); 
             max-width: 100%;
             -webkit-overflow-scrolling: touch; 
-            background: white;
+            background: var(--table-bg);
         }
         
         table { 
             width: 100%; 
             border-collapse: separate; 
             border-spacing: 0;
-            min-width: 700px; 
+            min-width: 800px; 
         }
         
         th, td { 
@@ -123,40 +256,75 @@
             font-size: 0.9rem; 
         }
         
-        th { background-color: var(--dark); color: white; white-space: nowrap; font-weight: 500; }
+        th { background-color: var(--table-header-bg); color: var(--table-header-text); white-space: nowrap; font-weight: 500; }
         
-        tr { background-color: white; }
-        tr:nth-child(even) { background-color: var(--light); }
-        tr:hover { background-color: #e2e8f0; }
+        tr { background-color: var(--table-bg); }
+        tr:nth-child(even) { background-color: var(--table-even); }
+        tr:hover { background-color: var(--table-hover); }
 
-        /* Columna izquierda (Nivel) fija */
         td:first-child, th:first-child {
             position: sticky;
             left: 0;
             z-index: 2;
             border-right: 2px solid var(--border); 
         }
-        th:first-child { z-index: 3; background-color: var(--dark); }
+        th:first-child { z-index: 3; background-color: var(--table-header-bg); }
         td:first-child { background-color: inherit; }
         
-        .action-cell { background-color: #fffbeb; font-weight: 600; color: #d97706; min-width: 250px;}
-        .profit-cell { background-color: #ecfdf5; font-weight: bold; color: var(--secondary); }
+        .action-cell { min-width: 320px; vertical-align: top; }
+        .profit-cell { background-color: var(--profit-bg); font-weight: bold; color: var(--secondary); }
         .risk-cell { color: var(--danger); font-weight: 600; }
 
+        /* ESTILOS DE ACCIÓN EN PANTALLA */
+        .action-steps-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .action-target {
+            font-size: 0.95rem;
+            color: var(--pill-target-text);
+            font-weight: 700;
+            background: var(--pill-target-bg);
+            padding: 4px 10px;
+            border-radius: 6px;
+            border: 1px solid var(--pill-target-border);
+            display: inline-block;
+            align-self: flex-start;
+        }
+        .action-steps-pill {
+            background-color: var(--pill-action-bg);
+            color: var(--pill-action-text);
+            font-weight: 600;
+            border-radius: 6px;
+            padding: 8px 12px;
+            display: inline-block;
+            border: 1px solid var(--pill-action-border);
+            line-height: 1.4;
+            align-self: flex-start;
+        }
+        .action-arrow { color: var(--text-muted); margin: 0 5px; font-size: 0.9em; }
+
         .subtotal-box {
-            margin-top: 8px;
-            padding: 8px;
-            background: rgba(0,0,0,0.04);
-            border-left: 3px solid #d97706;
-            border-radius: 4px;
+            margin-top: 4px;
+            padding: 10px;
+            background: var(--subtotal-bg);
+            border-left: 3px solid var(--subtotal-border);
+            border-radius: 6px;
             font-size: 0.85em;
-            color: #334155;
+            color: var(--text-main);
             line-height: 1.5;
             word-wrap: break-word; 
         }
 
+        .nowrap-chip {
+            white-space: nowrap;
+        }
+
         @media(max-width: 600px) {
             body { padding: 10px; }
+            .header { flex-direction: column; gap: 10px; text-align: center; }
+            .theme-toggle-btn { position: static; margin-top: 5px; }
             .card { padding: 15px; }
             .layout { gap: 15px; }
             h2 { font-size: 1.05rem; }
@@ -169,6 +337,7 @@
 
 <div class="header">
     <h1>🎰 Calculadora Martingala Pro</h1>
+    <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Alternar Modo Oscuro"></button>
 </div>
 
 <div class="layout">
@@ -190,7 +359,7 @@
                 </div>
             </div>
 
-            <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 15px 0;">
+            <hr style="border: 0; border-top: 1px solid var(--border); margin: 15px 0;">
 
             <div class="form-group">
                 <label>Fichas Disponibles en la Mesa:</label>
@@ -201,7 +370,7 @@
                 <div class="chip-container" id="chipList"></div>
             </div>
 
-            <div class="checkbox-group" style="background-color: #eff6ff; border: 1px solid #bfdbfe;">
+            <div class="checkbox-group" style="background-color: var(--checkbox-blue-bg); border: 1px solid var(--checkbox-blue-border);">
                 <input type="checkbox" id="hasX2Button" onchange="updateProfileSettings()">
                 <label for="hasX2Button">La mesa tiene botón "x2" (Duplicar)</label>
             </div>
@@ -270,7 +439,7 @@
                 <tbody></tbody>
             </table>
         </div>
-        <p style="font-size: 0.85rem; color: #64748b; margin-top: 15px; line-height: 1.5;">
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 15px; line-height: 1.5;">
             * <b>Soporte de "k" (Miles):</b> Puedes ingresar valores como <b>2.5k</b> (equivalente a 2500) en cualquier campo para agilizar.<br>
             * Desliza la tabla hacia la derecha para ver toda la información. La columna <b>Nivel</b> siempre permanecerá visible.
         </p>
@@ -278,6 +447,26 @@
 </div>
 
 <script>
+    // --- LÓGICA DEL TEMA (DARK MODE) ---
+    function updateToggleIcon() {
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        document.getElementById('themeToggleBtn').textContent = isDark ? '☀️' : '🌙';
+    }
+
+    function toggleTheme() {
+        const body = document.documentElement;
+        const currentTheme = body.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        
+        body.setAttribute('data-theme', newTheme);
+        localStorage.setItem('martingaleTheme', newTheme);
+        updateToggleIcon();
+    }
+
+    // Inicializar ícono al cargar
+    window.addEventListener('DOMContentLoaded', updateToggleIcon);
+
+    // --- LÓGICA DE UTILIDADES "K" ---
     function parseK(valStr) {
         if (!valStr) return NaN;
         valStr = String(valStr).trim().toLowerCase().replace(/,/g, '');
@@ -302,6 +491,7 @@
         return (Math.round(num * 100) / 100).toString();
     }
 
+    // --- MANEJO DE PERFILES ---
     let profiles = JSON.parse(localStorage.getItem('martingaleProfiles')) || {
         "Por Defecto": { chips:[1, 5, 25, 100, 500, 1000], hasX2: true }
     };
@@ -389,66 +579,61 @@
         actualizarCalculos();
     }
 
-    function calcularAccion(apuestaObjetivo, apuestaAnterior) {
-        let chips = profiles[currentProfile].chips.sort((a, b) => b - a); 
-        let hasX2 = profiles[currentProfile].hasX2;
+    // --- NUEVA LÓGICA DE INSTRUCCIONES ESTILO "PRO V2" ---
+    function obtenerDesgloseFichas(cantidad, chipsArray) {
+        if (cantidad <= 0) return "";
+        let fichasOrdenadas = [...chipsArray].sort((a,b) => b-a);
+        let restante = cantidad;
+        let desglose =[];
         
-        if (chips.length === 0) return { texto: "Configura fichas en tu perfil", baseValor: 0 };
-        if (apuestaObjetivo <= 0) return { texto: "-", baseValor: 0 };
-
-        let opciones =[];
-        opciones.push({ baseNombre: "Colocar", baseValor: 0, clicksBase: 0 });
-        
-        if (apuestaAnterior > 0) {
-            if (apuestaObjetivo >= apuestaAnterior) {
-                opciones.push({ baseNombre: "🔄 Repetir", baseValor: apuestaAnterior, clicksBase: 1 });
-            }
-            if (hasX2 && apuestaObjetivo >= (apuestaAnterior * 2)) {
-                opciones.push({ baseNombre: "🔄 Repetir + 🔂 x2", baseValor: apuestaAnterior * 2, clicksBase: 2 });
+        for (let ficha of fichasOrdenadas) {
+            // Se usa un margen de error (0.001) para evitar bugs de flotantes en JS
+            if (restante >= ficha - 0.001) {
+                let cantidadFicha = Math.floor((restante + 0.001) / ficha);
+                let totalFicha = cantidadFicha * ficha; 
+                // AQUÍ: La clase nowrap-chip garantiza que 1x y 🪙500 JAMÁS se separen
+                desglose.push(`<span class="nowrap-chip"><b>${cantidadFicha}x</b> 🪙${formatK(ficha)}</span>`);
+                restante = parseFloat((restante - totalFicha).toFixed(4));
             }
         }
-
-        let mejorOpcion = null;
-        let minimosClicks = Infinity;
-        let mejorTextoFichas = "";
-
-        for (let opc of opciones) {
-            let diferencia = apuestaObjetivo - opc.baseValor;
-            let clicksFichas = 0;
-            let textoFichasArr =[];
-            let resto = diferencia;
-
-            for (let ficha of chips) {
-                if (resto >= ficha - 0.001) { 
-                    let cantidad = Math.floor((resto + 0.001) / ficha);
-                    clicksFichas += cantidad;
-                    resto -= cantidad * ficha;
-                    textoFichasArr.push(`${cantidad}x${formatK(ficha)}`); 
-                }
-            }
-
-            if (resto < 0.01) {
-                let clicksTotales = opc.clicksBase + clicksFichas;
-                
-                if (clicksTotales < minimosClicks || (clicksTotales === minimosClicks && mejorOpcion && opc.baseValor > mejorOpcion.baseValor)) {
-                    minimosClicks = clicksTotales;
-                    mejorOpcion = opc;
-                    mejorTextoFichas = textoFichasArr.join(" + ");
-                }
-            }
-        }
-
-        if (!mejorOpcion) return { texto: "Limpiar y colocar manual", baseValor: 0 };
-
-        let resultado = mejorOpcion.baseNombre;
-        if (mejorTextoFichas !== "") {
-            if (resultado !== "Colocar") resultado += " + <br>";
-            resultado += "🪙 " + mejorTextoFichas;
-        }
-        
-        return { texto: resultado, baseValor: mejorOpcion.baseValor };
+        return desglose.join(' + ');
     }
 
+    function construirInstruccionHTML(target, previousTarget, hasX2, chipsArray) {
+        if (chipsArray.length === 0) return `<div class="action-steps-pill">Configura fichas en tu perfil</div>`;
+        if (target === 0) return "-";
+        
+        // Si no había apuesta previa
+        if (previousTarget === 0) {
+            return `<div class="action-steps-pill">Colocar[ ${obtenerDesgloseFichas(target, chipsArray)} ]</div>`;
+        }
+
+        let actualEnMesa = previousTarget;
+        let acciones =["Repetir"];
+
+        if (hasX2) {
+            while ((actualEnMesa * 2) <= target + 0.001) {
+                actualEnMesa *= 2;
+                acciones.push("x2");
+            }
+        }
+
+        let diferencia = parseFloat((target - actualEnMesa).toFixed(4));
+
+        if (diferencia > 0) {
+            let adicion = obtenerDesgloseFichas(diferencia, chipsArray);
+            if (adicion) {
+                acciones.push(`+[ ${adicion} ]`);
+            } else {
+                 return `<div class="action-steps-pill">Reiniciar y colocar[ ${obtenerDesgloseFichas(target, chipsArray)} ]</div>`;
+            }
+        }
+
+        const arrow = ' <span class="action-arrow">➔</span> ';
+        return `<div class="action-steps-pill">${acciones.join(arrow)}</div>`;
+    }
+
+    // --- MOTOR DE CÁLCULO PRINCIPAL ---
     function actualizarCalculos() {
         const apuestaInicial = parseK(document.getElementById('apuestaInicial').value);
         let cuota = parseFloat(document.getElementById('cuota').value);
@@ -520,32 +705,33 @@
             const gananciaNetaRonda = apuestaFinalAjustada * (cuota - 1);
             const beneficioFinalReal = gananciaNetaRonda - perdidaAcumuladaTotal - betOnZero;
             
-            let accionData = calcularAccion(apuestaPorPosicion, apuestaAnteriorPosicion);
-            let textoAccion = accionData.texto;
-            let baseAccion = accionData.baseValor;
+            // CONSTRUCCIÓN DE LA COLUMNA DE ACCIÓN VISUAL (CON EXTRAS)
+            let textoAccionHTML = `<div class="action-steps-container">`;
 
-            // Lógica corregida para la lectura paso a paso
+            // 1) Requerimiento: ESPECIFICAR CANTIDAD POR DOCENA DE CADA NIVEL FUERA DE LA LÓGICA
+            let etiquetaZona = esDosDocenas ? "Cantidad Por Docena" : "Cantidad Base";
+            textoAccionHTML += `<div class="action-target">🎯 ${etiquetaZona}: <b>${formatK(apuestaPorPosicion)}</b></div>`;
+
+            // 2) Pasos de acción al estilo visual Pro V2
+            textoAccionHTML += construirInstruccionHTML(apuestaPorPosicion, apuestaAnteriorPosicion, profiles[currentProfile].hasX2, profiles[currentProfile].chips);
+
+            // 3) Si hay que cubrir el Cero (Dinámico y con variables de tema)
+            if (betOnZero > 0) {
+                textoAccionHTML += `<div class="action-steps-pill" style="background:var(--pill-zero-bg); color:var(--pill-zero-text); border-color:var(--pill-zero-border);">Al Cero: Colocar[ ${obtenerDesgloseFichas(betOnZero, profiles[currentProfile].chips)} ]</div>`;
+            }
+
+            // 4) Lógica INTACTA para la lectura paso a paso
             if (esDosDocenas) {
-                // Apuesta total objetivo para este nivel (ambas docenas)
                 let apuestaTotalObjetivo = apuestaPorPosicion * 2;
-
-                // Base en mesa = total apostado en la ronda anterior × 2 (duplicado por los botones del casino)
-                // En nivel 1, apuestaAnteriorPosicion = 0, por lo que mesaBase = 0
                 let mesaBase = apuestaAnteriorPosicion * 2 * 2;
-                // Explicación: apuestaAnteriorPosicion es la apuesta POR DOCENA de la ronda anterior.
-                // El total de esa ronda fue apuestaAnteriorPosicion * 2.
-                // Los botones del casino lo duplican: (apuestaAnteriorPosicion * 2) * 2
-
-                // Faltante total a colocar con fichas, dividido entre las 2 docenas
                 let faltanteTotal = apuestaTotalObjetivo - mesaBase;
                 let faltantePorDocena = faltanteTotal / 2;
 
-                // Lecturas progresivas de la pantalla de la mesa
-                let subtotal1 = mesaBase + faltantePorDocena;   // tras llenar 1ª docena
-                let total     = subtotal1 + faltantePorDocena;  // tras llenar 2ª docena (= apuestaTotalObjetivo)
+                let subtotal1 = mesaBase + faltantePorDocena;
+                let total     = subtotal1 + faltantePorDocena;
 
                 if (faltantePorDocena > 0) {
-                    textoAccion += `
+                    textoAccionHTML += `
                         <div class="subtotal-box">
                             <b>📍 Lectura paso a paso:</b><br>
                             1. Base en mesa (Botones): <b>${formatK(mesaBase)}</b><br>
@@ -554,16 +740,19 @@
                         </div>
                     `;
                 } else {
-                    textoAccion += `
+                    textoAccionHTML += `
                         <div class="subtotal-box">
                             <b>📍 Lectura paso a paso:</b><br>
                             1. Base en mesa (Botones): <b>${formatK(mesaBase)}</b><br>
-                            <span style="font-size: 0.9em; color: #64748b;">(Meta alcanzada. No requiere añadir fichas)</span>
+                            <span style="font-size: 0.9em; color: var(--text-muted);">(Meta alcanzada. No requiere añadir fichas)</span>
                         </div>
                     `;
                 }
             }
+            
+            textoAccionHTML += `</div>`; // Cierre del contenedor
 
+            // INYECCIÓN DE LA FILA EN LA TABLA
             const fila = document.createElement('tr');
             let celdaDocena = esDosDocenas ? `<td><b>${formatK(apuestaPorPosicion)}</b></td>` : '';
             let celdaZero = coverZeroActivado ? `<td>${betOnZero > 0 ? formatK(betOnZero) : '-'}</td>` : '';
@@ -576,7 +765,7 @@
                 <td>${formatK(perdidaAcumuladaTotal)}</td>
                 <td class="risk-cell">${formatK(riesgoTotalRonda)}</td>
                 <td class="profit-cell">+${formatK(beneficioFinalReal)}</td>
-                <td class="action-cell">${textoAccion}</td>
+                <td class="action-cell">${textoAccionHTML}</td>
             `;
             tablaBody.appendChild(fila);
 
