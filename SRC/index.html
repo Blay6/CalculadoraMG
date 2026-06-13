@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Martingala Pro + Configuración Avanzada</title>
     
-    <!-- SCRIPT DE TEMA (Se ejecuta antes de cargar para evitar el flashazo blanco) -->
     <script>
         const savedTheme = localStorage.getItem('martingaleTheme');
         if (savedTheme) {
@@ -16,12 +15,12 @@
     </script>
 
     <style>
-        /* TEMA CLARO (Variables por defecto) */
         :root {
             --primary: #2563eb;
             --primary-hover: #1d4ed8;
             --secondary: #10b981;
             --danger: #ef4444;
+            --warning: #f59e0b;
             --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             
             --bg-body: #cbd5e1;
@@ -64,13 +63,27 @@
             
             --subtotal-bg: rgba(0,0,0,0.03);
             --subtotal-border: #d97706;
+
+            /* Colores de riesgo progresivo */
+            --risk-low: #10b981;
+            --risk-medium: #f59e0b;
+            --risk-high: #ef4444;
+            --risk-extreme: #7c3aed;
+
+            --level-badge-bg: #e2e8f0;
+            --level-badge-text: #334155;
+
+            /* Colores de fila por nivel alto */
+            --row-danger-bg: rgba(239,68,68,0.06);
+            --row-extreme-bg: rgba(124,58,237,0.07);
         }
 
-        /* TEMA OSCURO */[data-theme="dark"] {
+        [data-theme="dark"] {
             --primary: #3b82f6;
             --primary-hover: #60a5fa;
             --secondary: #34d399;
             --danger: #f87171;
+            --warning: #fbbf24;
             --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
             
             --bg-body: #0f172a;
@@ -113,14 +126,18 @@
             
             --subtotal-bg: rgba(255,255,255,0.05);
             --subtotal-border: #f59e0b;
+
+            --level-badge-bg: #334155;
+            --level-badge-text: #f1f5f9;
+
+            --row-danger-bg: rgba(239,68,68,0.1);
+            --row-extreme-bg: rgba(124,58,237,0.12);
         }
 
-        /* TRANSICIONES SUAVES AL CAMBIAR DE TEMA */
         body, .card, input, select, table, th, td, .action-steps-pill, .action-target, .subtotal-box {
             transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
         }
 
-        /* RESET BÁSICO PARA RESPONSIVE */
         *, *::before, *::after { box-sizing: border-box; }
 
         body {
@@ -135,7 +152,6 @@
             min-height: 100vh;
         }
 
-        /* HEADER Y BOTÓN DE TEMA */
         .header { 
             position: relative;
             display: flex;
@@ -162,10 +178,7 @@
             display: flex; align-items: center; justify-content: center;
             transition: transform 0.2s, border-color 0.2s, background-color 0.3s;
         }
-        .theme-toggle-btn:hover {
-            transform: scale(1.1);
-            border-color: var(--primary);
-        }
+        .theme-toggle-btn:hover { transform: scale(1.1); border-color: var(--primary); }
 
         .layout {
             display: grid;
@@ -215,7 +228,6 @@
         .checkbox-group input[type="checkbox"] { transform: scale(1.3); cursor: pointer; flex-shrink: 0; margin-left: 5px; }
         .checkbox-group label { margin: 0; cursor: pointer; color: var(--text-main); font-size: 0.95rem; line-height: 1.3;}
 
-        /* Chips UI */
         .chip-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
         .chip {
             background: var(--chip-bg); color: var(--chip-text); padding: 6px 12px;
@@ -232,7 +244,65 @@
 
         .options-container { padding-left: 15px; border-left: 3px solid var(--primary); margin-bottom: 15px; }
 
-        /* Table Responsive Styles */
+        /* ---- CONTROL DE NIVELES ---- */
+        .levels-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--checkbox-blue-bg);
+            border: 1px solid var(--checkbox-blue-border);
+            border-radius: 8px;
+            padding: 10px 14px;
+            margin-bottom: 15px;
+        }
+        .levels-control label {
+            margin: 0;
+            flex: 1;
+            font-size: 0.9rem;
+        }
+        .levels-control input[type="range"] {
+            flex: 2;
+            min-width: 80px;
+            padding: 0;
+            height: 6px;
+            accent-color: var(--primary);
+            cursor: pointer;
+            border: none;
+            background: transparent;
+        }
+        .levels-badge {
+            background: var(--primary);
+            color: white;
+            border-radius: 20px;
+            padding: 3px 12px;
+            font-weight: 700;
+            font-size: 1rem;
+            min-width: 46px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        /* ---- RESUMEN DE RIESGO ---- */
+        .risk-summary {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .risk-card {
+            border-radius: 8px;
+            padding: 12px 14px;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+        }
+        .risk-card .rc-label { font-size: 0.78rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+        .risk-card .rc-value { font-size: 1.2rem; font-weight: 800; margin-top: 3px; }
+        .rc-green  .rc-value { color: var(--secondary); }
+        .rc-yellow .rc-value { color: var(--warning); }
+        .rc-red    .rc-value { color: var(--danger); }
+        .rc-purple .rc-value { color: #7c3aed; }
+
+        /* ---- TABLA ---- */
         .table-responsive { 
             overflow-x: auto; 
             border-radius: 8px; 
@@ -261,6 +331,8 @@
         tr { background-color: var(--table-bg); }
         tr:nth-child(even) { background-color: var(--table-even); }
         tr:hover { background-color: var(--table-hover); }
+        tr.row-danger  { background-color: var(--row-danger-bg) !important; }
+        tr.row-extreme { background-color: var(--row-extreme-bg) !important; }
 
         td:first-child, th:first-child {
             position: sticky;
@@ -273,9 +345,30 @@
         
         .action-cell { min-width: 320px; vertical-align: top; }
         .profit-cell { background-color: var(--profit-bg); font-weight: bold; color: var(--secondary); }
-        .risk-cell { color: var(--danger); font-weight: 600; }
+        
+        /* Riesgo con color dinámico */
+        .risk-cell-low    { color: var(--risk-low); font-weight: 700; }
+        .risk-cell-medium { color: var(--risk-medium); font-weight: 700; }
+        .risk-cell-high   { color: var(--risk-high); font-weight: 700; }
+        .risk-cell-extreme{ color: var(--risk-extreme); font-weight: 700; }
 
-        /* ESTILOS DE ACCIÓN EN PANTALLA */
+        /* Badge de nivel */
+        .level-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 800;
+            font-size: 0.9rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            white-space: nowrap;
+            background: var(--level-badge-bg);
+            color: var(--level-badge-text);
+        }
+        .level-badge.lvl-danger  { background: rgba(239,68,68,0.15);  color: var(--danger);  }
+        .level-badge.lvl-extreme { background: rgba(124,58,237,0.15); color: #7c3aed; }
+
+        /* Acción en mesa */
         .action-steps-container {
             display: flex;
             flex-direction: column;
@@ -317,8 +410,21 @@
             word-wrap: break-word; 
         }
 
-        .nowrap-chip {
-            white-space: nowrap;
+        .nowrap-chip { white-space: nowrap; }
+
+        /* ---- SEPARADOR DE ETAPA ---- */
+        .stage-separator td {
+            background: linear-gradient(90deg, var(--primary) 0%, transparent 100%);
+            padding: 4px 12px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: white;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            border: none;
+        }
+        [data-theme="dark"] .stage-separator td {
+            background: linear-gradient(90deg, #1d4ed8 0%, transparent 100%);
         }
 
         @media(max-width: 600px) {
@@ -330,6 +436,7 @@
             h2 { font-size: 1.05rem; }
             th, td { padding: 10px 8px; font-size: 0.85rem; }
             .btn-small { padding: 8px 10px; font-size: 0.85rem; }
+            .risk-summary { grid-template-columns: 1fr 1fr; }
         }
     </style>
 </head>
@@ -378,6 +485,14 @@
 
         <div class="card" style="margin-bottom: 20px;">
             <h2>⚙️ Estrategia General</h2>
+
+            <!-- CONTROL DE NIVELES -->
+            <div class="levels-control">
+                <label for="nivelMaxSlider">📶 Niveles:</label>
+                <input type="range" id="nivelMaxSlider" min="5" max="50" value="15" step="1" oninput="onSliderChange()">
+                <div class="levels-badge" id="nivelMaxBadge">15</div>
+            </div>
+
             <div class="form-group">
                 <label>Apuesta Inicial Mínima (Base):</label>
                 <input type="text" id="apuestaInicial" value="1k" placeholder="Ej: 10 o 1k" oninput="actualizarCalculos()">
@@ -422,6 +537,27 @@
 
     <div class="right-panel card">
         <h2>📊 Plan de Apuestas Sugerido</h2>
+
+        <!-- RESUMEN DE RIESGO -->
+        <div class="risk-summary" id="riskSummary" style="display:none;">
+            <div class="risk-card rc-green">
+                <div class="rc-label">Apuesta Inicial</div>
+                <div class="rc-value" id="rs-inicial">-</div>
+            </div>
+            <div class="risk-card rc-yellow">
+                <div class="rc-label">Apuesta Último Nivel</div>
+                <div class="rc-value" id="rs-ultima">-</div>
+            </div>
+            <div class="risk-card rc-red">
+                <div class="rc-label">Riesgo Máximo Total</div>
+                <div class="rc-value" id="rs-riesgo">-</div>
+            </div>
+            <div class="risk-card rc-purple">
+                <div class="rc-label">Múltiplo de Capital</div>
+                <div class="rc-value" id="rs-multiplo">-x</div>
+            </div>
+        </div>
+
         <div class="table-responsive">
             <table id="resultados-tabla">
                 <thead>
@@ -440,14 +576,16 @@
             </table>
         </div>
         <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 15px; line-height: 1.5;">
-            * <b>Soporte de "k" (Miles):</b> Puedes ingresar valores como <b>2.5k</b> (equivalente a 2500) en cualquier campo para agilizar.<br>
-            * Desliza la tabla hacia la derecha para ver toda la información. La columna <b>Nivel</b> siempre permanecerá visible.
+            * <b>Soporte de "k" (Miles):</b> Puedes ingresar valores como <b>2.5k</b> (equivalente a 2500) en cualquier campo.<br>
+            * Usa el slider <b>📶 Niveles</b> para mostrar hasta <b>50 niveles</b> de martingala.<br>
+            * Las filas en <span style="color:var(--danger);font-weight:700;">rojo</span> y <span style="color:#7c3aed;font-weight:700;">púrpura</span> indican niveles de alto y extremo riesgo.<br>
+            * Desliza la tabla hacia la derecha para ver toda la información.
         </p>
     </div>
 </div>
 
 <script>
-    // --- LÓGICA DEL TEMA (DARK MODE) ---
+    // --- TEMA ---
     function updateToggleIcon() {
         const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
         document.getElementById('themeToggleBtn').textContent = isDark ? '☀️' : '🌙';
@@ -455,43 +593,55 @@
 
     function toggleTheme() {
         const body = document.documentElement;
-        const currentTheme = body.getAttribute('data-theme');
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        
+        const newTheme = body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
         body.setAttribute('data-theme', newTheme);
         localStorage.setItem('martingaleTheme', newTheme);
         updateToggleIcon();
     }
 
-    // Inicializar ícono al cargar
     window.addEventListener('DOMContentLoaded', updateToggleIcon);
 
-    // --- LÓGICA DE UTILIDADES "K" ---
+    // --- SLIDER DE NIVELES ---
+    function onSliderChange() {
+        const val = document.getElementById('nivelMaxSlider').value;
+        document.getElementById('nivelMaxBadge').textContent = val;
+        actualizarCalculos();
+    }
+
+    // --- UTILIDADES "K" ---
     function parseK(valStr) {
         if (!valStr) return NaN;
         valStr = String(valStr).trim().toLowerCase().replace(/,/g, '');
         let mult = 1;
-        if (valStr.endsWith('k')) {
-            mult = 1000;
-            valStr = valStr.slice(0, -1);
-        }
+        if (valStr.endsWith('k')) { mult = 1000; valStr = valStr.slice(0, -1); }
         return parseFloat(valStr) * mult;
     }
 
     function formatK(num) {
         if (num == null || isNaN(num)) return '-';
         if (num === 0) return '0';
-        
         let absNum = Math.abs(num);
         if (absNum >= 1000) {
-            let kVal = num / 1000;
-            kVal = Math.round(kVal * 100) / 100;
+            let kVal = Math.round((num / 1000) * 100) / 100;
             return kVal + 'k';
         }
         return (Math.round(num * 100) / 100).toString();
     }
 
-    // --- MANEJO DE PERFILES ---
+    // --- CLASIFICACIÓN DE RIESGO ---
+    function riskClass(nivel, totalNiveles) {
+        const pct = nivel / totalNiveles;
+        if (pct >= 0.85) return 'extreme';
+        if (pct >= 0.65) return 'high';
+        if (pct >= 0.40) return 'medium';
+        return 'low';
+    }
+
+    function riskCellClass(cls) {
+        return `risk-cell-${cls}`;
+    }
+
+    // --- PERFILES ---
     let profiles = JSON.parse(localStorage.getItem('martingaleProfiles')) || {
         "Por Defecto": { chips:[1, 5, 25, 100, 500, 1000], hasX2: true }
     };
@@ -526,7 +676,7 @@
     function createProfile() {
         const name = document.getElementById('newProfileName').value.trim();
         if (!name || profiles[name]) return alert("Nombre inválido o ya existe.");
-        profiles[name] = { chips:[10, 50, 100], hasX2: true }; 
+        profiles[name] = { chips:[10, 50, 100], hasX2: true };
         currentProfile = name;
         document.getElementById('newProfileName').value = '';
         saveToStorage();
@@ -579,21 +729,17 @@
         actualizarCalculos();
     }
 
-    // --- NUEVA LÓGICA DE INSTRUCCIONES ESTILO "PRO V2" ---
+    // --- INSTRUCCIONES ---
     function obtenerDesgloseFichas(cantidad, chipsArray) {
         if (cantidad <= 0) return "";
         let fichasOrdenadas = [...chipsArray].sort((a,b) => b-a);
         let restante = cantidad;
-        let desglose =[];
-        
+        let desglose = [];
         for (let ficha of fichasOrdenadas) {
-            // Se usa un margen de error (0.001) para evitar bugs de flotantes en JS
             if (restante >= ficha - 0.001) {
                 let cantidadFicha = Math.floor((restante + 0.001) / ficha);
-                let totalFicha = cantidadFicha * ficha; 
-                // AQUÍ: La clase nowrap-chip garantiza que 1x y 🪙500 JAMÁS se separen
                 desglose.push(`<span class="nowrap-chip"><b>${cantidadFicha}x</b> 🪙${formatK(ficha)}</span>`);
-                restante = parseFloat((restante - totalFicha).toFixed(4));
+                restante = parseFloat((restante - cantidadFicha * ficha).toFixed(4));
             }
         }
         return desglose.join(' + ');
@@ -602,14 +748,13 @@
     function construirInstruccionHTML(target, previousTarget, hasX2, chipsArray) {
         if (chipsArray.length === 0) return `<div class="action-steps-pill">Configura fichas en tu perfil</div>`;
         if (target === 0) return "-";
-        
-        // Si no había apuesta previa
+
         if (previousTarget === 0) {
             return `<div class="action-steps-pill">Colocar[ ${obtenerDesgloseFichas(target, chipsArray)} ]</div>`;
         }
 
         let actualEnMesa = previousTarget;
-        let acciones =["Repetir"];
+        let acciones = ["Repetir"];
 
         if (hasX2) {
             while ((actualEnMesa * 2) <= target + 0.001) {
@@ -625,7 +770,7 @@
             if (adicion) {
                 acciones.push(`+[ ${adicion} ]`);
             } else {
-                 return `<div class="action-steps-pill">Reiniciar y colocar[ ${obtenerDesgloseFichas(target, chipsArray)} ]</div>`;
+                return `<div class="action-steps-pill">Reiniciar y colocar[ ${obtenerDesgloseFichas(target, chipsArray)} ]</div>`;
             }
         }
 
@@ -633,11 +778,29 @@
         return `<div class="action-steps-pill">${acciones.join(arrow)}</div>`;
     }
 
-    // --- MOTOR DE CÁLCULO PRINCIPAL ---
+    // --- ETAPAS DE RIESGO ---
+    const STAGES = [
+        { from: 1,  label: "🟢 Zona Segura",      cls: 'low'     },
+        { from: 6,  label: "🟡 Zona de Precaución", cls: 'medium'  },
+        { from: 11, label: "🔴 Zona de Alto Riesgo", cls: 'high'   },
+        { from: 21, label: "🟣 Zona Extrema",       cls: 'extreme' },
+        { from: 36, label: "💀 Zona Límite",        cls: 'extreme' },
+    ];
+
+    function getStageSeparator(nivel) {
+        // Returns label if this nivel starts a new stage, else null
+        for (let i = STAGES.length - 1; i >= 0; i--) {
+            if (nivel === STAGES[i].from) return STAGES[i].label;
+        }
+        return null;
+    }
+
+    // --- MOTOR DE CÁLCULO ---
     function actualizarCalculos() {
         const apuestaInicial = parseK(document.getElementById('apuestaInicial').value);
         let cuota = parseFloat(document.getElementById('cuota').value);
-        
+        const maxNiveles = parseInt(document.getElementById('nivelMaxSlider').value);
+
         const chips = profiles[currentProfile].chips;
         const fichaMinima = chips.length > 0 ? Math.min(...chips) : 1;
 
@@ -649,7 +812,8 @@
         const tablaBody = document.querySelector("#resultados-tabla tbody");
         const thDocena = document.getElementById('th-docena');
         const thZero = document.getElementById('th-zero');
-        
+        const riskSummaryEl = document.getElementById('riskSummary');
+
         document.getElementById('gananciaDeseadaContainer').style.display = modoSeguroActivado ? 'block' : 'none';
         document.getElementById('zeroOptionsContainer').style.display = coverZeroActivado ? 'block' : 'none';
         thZero.style.display = coverZeroActivado ? '' : 'none';
@@ -663,17 +827,23 @@
             cuotaInput.disabled = false;
             thDocena.style.display = 'none';
         }
-        
+
         tablaBody.innerHTML = '';
+        riskSummaryEl.style.display = 'none';
+
         if (isNaN(apuestaInicial) || isNaN(cuota) || apuestaInicial <= 0 || cuota <= 1) return;
 
         let perdidaAcumuladaTotal = 0;
         let zeroThreshold = coverZeroActivado ? parseK(document.getElementById('zeroThreshold').value) : NaN;
         let nextZeroBetThreshold = zeroThreshold;
-        
         let apuestaAnteriorPosicion = 0;
 
-        for (let i = 1; i <= 15; i++) {
+        // Para resumen
+        let primerApuesta = 0;
+        let ultimaApuesta = 0;
+        let ultimoRiesgo = 0;
+
+        for (let i = 1; i <= maxNiveles; i++) {
             let gananciaObjetivoDeRonda;
             if (modoSeguroActivado) {
                 gananciaObjetivoDeRonda = parseK(document.getElementById('gananciaDeseada').value);
@@ -692,9 +862,9 @@
 
             let apuestaCalculada = (perdidaAcumuladaTotal + betOnZero + gananciaObjetivoDeRonda) / (cuota - 1);
             if (apuestaCalculada <= 0) break;
-            
+
             let apuestaFinalAjustada = Math.ceil(apuestaCalculada / fichaMinima) * fichaMinima;
-            
+
             let apuestaPorPosicion = apuestaFinalAjustada;
             if (esDosDocenas) {
                 apuestaPorPosicion = Math.ceil((apuestaFinalAjustada / 2) / fichaMinima) * fichaMinima;
@@ -704,29 +874,38 @@
             const riesgoTotalRonda = perdidaAcumuladaTotal + apuestaFinalAjustada + betOnZero;
             const gananciaNetaRonda = apuestaFinalAjustada * (cuota - 1);
             const beneficioFinalReal = gananciaNetaRonda - perdidaAcumuladaTotal - betOnZero;
-            
-            // CONSTRUCCIÓN DE LA COLUMNA DE ACCIÓN VISUAL (CON EXTRAS)
-            let textoAccionHTML = `<div class="action-steps-container">`;
 
-            // 1) Requerimiento: ESPECIFICAR CANTIDAD POR DOCENA DE CADA NIVEL FUERA DE LA LÓGICA
+            if (i === 1) primerApuesta = apuestaFinalAjustada;
+            ultimaApuesta = apuestaFinalAjustada;
+            ultimoRiesgo = riesgoTotalRonda;
+
+            // Separador de etapa
+            const stageSep = getStageSeparator(i);
+            if (stageSep) {
+                const sepRow = document.createElement('tr');
+                sepRow.className = 'stage-separator';
+                const cellCount = 6 + (esDosDocenas ? 1 : 0) + (coverZeroActivado ? 1 : 0) + 1;
+                sepRow.innerHTML = `<td colspan="${cellCount}">${stageSep}</td>`;
+                tablaBody.appendChild(sepRow);
+            }
+
+            // Clase de riesgo por nivel
+            const risk = riskClass(i, maxNiveles);
+            const riskCellCls = riskCellClass(risk);
+
+            // Acción en mesa
+            let textoAccionHTML = `<div class="action-steps-container">`;
             let etiquetaZona = esDosDocenas ? "Cantidad Por Docena" : "Cantidad Base";
             textoAccionHTML += `<div class="action-target">🎯 ${etiquetaZona}: <b>${formatK(apuestaPorPosicion)}</b></div>`;
-
-            // 2) Pasos de acción al estilo visual Pro V2
             textoAccionHTML += construirInstruccionHTML(apuestaPorPosicion, apuestaAnteriorPosicion, profiles[currentProfile].hasX2, profiles[currentProfile].chips);
 
-            // 3) Si hay que cubrir el Cero (Dinámico y con variables de tema)
             if (betOnZero > 0) {
                 textoAccionHTML += `<div class="action-steps-pill" style="background:var(--pill-zero-bg); color:var(--pill-zero-text); border-color:var(--pill-zero-border);">Al Cero: Colocar[ ${obtenerDesgloseFichas(betOnZero, profiles[currentProfile].chips)} ]</div>`;
             }
 
-            // 4) Lógica INTACTA para la lectura paso a paso
             if (esDosDocenas) {
-                let apuestaTotalObjetivo = apuestaPorPosicion * 2;
                 let mesaBase = apuestaAnteriorPosicion * 2 * 2;
-                let faltanteTotal = apuestaTotalObjetivo - mesaBase;
-                let faltantePorDocena = faltanteTotal / 2;
-
+                let faltantePorDocena = (apuestaPorPosicion * 2 - mesaBase) / 2;
                 let subtotal1 = mesaBase + faltantePorDocena;
                 let total     = subtotal1 + faltantePorDocena;
 
@@ -737,40 +916,58 @@
                             1. Base en mesa (Botones): <b>${formatK(mesaBase)}</b><br>
                             2. Tras llenar 1ª Docena: <b>${formatK(subtotal1)}</b><br>
                             3. Tras llenar 2ª Docena: <b>${formatK(total)}</b>
-                        </div>
-                    `;
+                        </div>`;
                 } else {
                     textoAccionHTML += `
                         <div class="subtotal-box">
                             <b>📍 Lectura paso a paso:</b><br>
                             1. Base en mesa (Botones): <b>${formatK(mesaBase)}</b><br>
-                            <span style="font-size: 0.9em; color: var(--text-muted);">(Meta alcanzada. No requiere añadir fichas)</span>
-                        </div>
-                    `;
+                            <span style="font-size:0.9em;color:var(--text-muted);">(Meta alcanzada. No requiere añadir fichas)</span>
+                        </div>`;
                 }
             }
-            
-            textoAccionHTML += `</div>`; // Cierre del contenedor
 
-            // INYECCIÓN DE LA FILA EN LA TABLA
+            textoAccionHTML += `</div>`;
+
+            // Badge de nivel
+            let lvlBadgeCls = '';
+            let lvlEmoji = '';
+            if (risk === 'extreme') { lvlBadgeCls = 'lvl-extreme'; lvlEmoji = '🟣'; }
+            else if (risk === 'high') { lvlBadgeCls = 'lvl-danger'; lvlEmoji = '🔴'; }
+            else if (risk === 'medium') { lvlEmoji = '🟡'; }
+            else { lvlEmoji = '🟢'; }
+
             const fila = document.createElement('tr');
+            if (risk === 'extreme') fila.classList.add('row-extreme');
+            else if (risk === 'high') fila.classList.add('row-danger');
+
             let celdaDocena = esDosDocenas ? `<td><b>${formatK(apuestaPorPosicion)}</b></td>` : '';
-            let celdaZero = coverZeroActivado ? `<td>${betOnZero > 0 ? formatK(betOnZero) : '-'}</td>` : '';
-            
+            let celdaZero   = coverZeroActivado ? `<td>${betOnZero > 0 ? formatK(betOnZero) : '-'}</td>` : '';
+
             fila.innerHTML = `
-                <td><b>Nivel ${i}</b></td>
+                <td><span class="level-badge ${lvlBadgeCls}">${lvlEmoji} N${i}</span></td>
                 ${celdaDocena}
                 <td><b>${formatK(apuestaFinalAjustada)}</b></td>
                 ${celdaZero}
                 <td>${formatK(perdidaAcumuladaTotal)}</td>
-                <td class="risk-cell">${formatK(riesgoTotalRonda)}</td>
+                <td class="${riskCellCls}">${formatK(riesgoTotalRonda)}</td>
                 <td class="profit-cell">+${formatK(beneficioFinalReal)}</td>
                 <td class="action-cell">${textoAccionHTML}</td>
             `;
             tablaBody.appendChild(fila);
 
             perdidaAcumuladaTotal += apuestaFinalAjustada + betOnZero;
-            apuestaAnteriorPosicion = apuestaPorPosicion; 
+            apuestaAnteriorPosicion = apuestaPorPosicion;
+        }
+
+        // Resumen de riesgo
+        if (primerApuesta > 0) {
+            document.getElementById('rs-inicial').textContent  = formatK(primerApuesta);
+            document.getElementById('rs-ultima').textContent   = formatK(ultimaApuesta);
+            document.getElementById('rs-riesgo').textContent   = formatK(ultimoRiesgo);
+            const multiplo = primerApuesta > 0 ? Math.round(ultimoRiesgo / primerApuesta) : '-';
+            document.getElementById('rs-multiplo').textContent = multiplo + 'x';
+            riskSummaryEl.style.display = 'grid';
         }
     }
 
