@@ -501,6 +501,24 @@
                 <label>Cuota (Multiplicador):</label>
                 <input type="number" id="cuota" value="2.0" step="0.1" oninput="actualizarCalculos()">
             </div>
+
+            <!-- MODO DOBLADO FIJO (SOLO BOTÓN X2) -->
+            <div class="checkbox-group" id="soloX2CheckboxGroup" style="background-color: var(--checkbox-blue-bg); border: 1px solid var(--checkbox-blue-border);">
+                <input type="checkbox" id="modoSoloX2" onchange="actualizarCalculos()">
+                <label for="modoSoloX2">Usar SOLO el botón "x2" (Doblado fijo por nivel)</label>
+            </div>
+            <div class="options-container" id="soloX2OptionsContainer" style="display:none;">
+                <div class="form-group">
+                    <label>Veces a presionar "x2" al pasar de nivel:</label>
+                    <input type="number" id="vecesX2" value="1" min="1" max="10" step="1" oninput="actualizarCalculos()">
+                </div>
+                <p id="x2WarningText" style="display:none; font-size: 0.8rem; color: var(--danger); margin: -8px 0 10px 0;">
+                    ⚠️ Tu perfil actual no tiene marcado el botón "x2" (revísalo arriba, en Perfil de Sesión).
+                </p>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin: -8px 0 10px 0; line-height: 1.4;">
+                    Con esta opción activa, cada nivel (a partir del Nivel 2) es igual al nivel anterior multiplicado por 2 elevado a las veces que definas, en vez de usar el cálculo automático de recuperación de pérdidas.
+                </p>
+            </div>
             
             <div class="checkbox-group">
                 <input type="checkbox" id="dosDocenas" onchange="actualizarCalculos()">
@@ -537,6 +555,8 @@
 
     <div class="right-panel card">
         <h2>📊 Plan de Apuestas Sugerido</h2>
+
+        <p id="modoActivoIndicator" style="display:none; font-size:0.85rem; font-weight:700; color: var(--primary); margin: -8px 0 14px 0;"></p>
 
         <!-- RESUMEN DE RIESGO -->
         <div class="risk-summary" id="riskSummary" style="display:none;">
@@ -578,6 +598,7 @@
         <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 15px; line-height: 1.5;">
             * <b>Soporte de "k" (Miles):</b> Puedes ingresar valores como <b>2.5k</b> (equivalente a 2500) en cualquier campo.<br>
             * Usa el slider <b>📶 Niveles</b> para mostrar hasta <b>50 niveles</b> de martingala.<br>
+            * Activa <b>"Usar SOLO el botón x2"</b> para forzar que cada nivel sea el anterior multiplicado por 2 elevado a las veces que definas (a partir del Nivel 2), en lugar del cálculo automático de recuperación. Funciona también junto con la apuesta a 2 Docenas.<br>
             * Las filas en <span style="color:var(--danger);font-weight:700;">rojo</span> y <span style="color:#7c3aed;font-weight:700;">púrpura</span> indican niveles de alto y extremo riesgo.<br>
             * Desliza la tabla hacia la derecha para ver toda la información.
         </p>
@@ -745,7 +766,9 @@
         return desglose.join(' + ');
     }
 
-    function construirInstruccionHTML(target, previousTarget, hasX2, chipsArray) {
+    // forcedX2Presses: si es un número (no null), fuerza exactamente esa cantidad de pulsaciones de "x2"
+    // en vez de calcular automáticamente cuántas veces cabe doblar dentro del objetivo.
+    function construirInstruccionHTML(target, previousTarget, hasX2, chipsArray, forcedX2Presses = null) {
         if (chipsArray.length === 0) return `<div class="action-steps-pill">Configura fichas en tu perfil</div>`;
         if (target === 0) return "-";
 
@@ -756,7 +779,12 @@
         let actualEnMesa = previousTarget;
         let acciones = ["Repetir"];
 
-        if (hasX2) {
+        if (forcedX2Presses !== null && forcedX2Presses > 0) {
+            for (let p = 0; p < forcedX2Presses; p++) {
+                actualEnMesa *= 2;
+                acciones.push("x2");
+            }
+        } else if (hasX2) {
             while ((actualEnMesa * 2) <= target + 0.001) {
                 actualEnMesa *= 2;
                 acciones.push("x2");
@@ -808,6 +836,11 @@
         const modoSeguroActivado = document.getElementById('modoSeguro').checked;
         const coverZeroActivado = document.getElementById('coverZero').checked;
 
+        // --- MODO DOBLADO FIJO (SOLO X2) ---
+        const modoSoloX2Activado = document.getElementById('modoSoloX2').checked;
+        let vecesX2Val = parseInt(document.getElementById('vecesX2').value);
+        if (isNaN(vecesX2Val) || vecesX2Val < 1) vecesX2Val = 1;
+
         const cuotaInput = document.getElementById('cuota');
         const tablaBody = document.querySelector("#resultados-tabla tbody");
         const thDocena = document.getElementById('th-docena');
@@ -817,6 +850,18 @@
         document.getElementById('gananciaDeseadaContainer').style.display = modoSeguroActivado ? 'block' : 'none';
         document.getElementById('zeroOptionsContainer').style.display = coverZeroActivado ? 'block' : 'none';
         thZero.style.display = coverZeroActivado ? '' : 'none';
+
+        document.getElementById('soloX2OptionsContainer').style.display = modoSoloX2Activado ? 'block' : 'none';
+        document.getElementById('x2WarningText').style.display = (modoSoloX2Activado && !profiles[currentProfile].hasX2) ? 'block' : 'none';
+
+        const modoIndicator = document.getElementById('modoActivoIndicator');
+        if (modoSoloX2Activado) {
+            const multiploNivel = Math.pow(2, vecesX2Val);
+            modoIndicator.style.display = 'block';
+            modoIndicator.textContent = `🔁 Modo Doblado Fijo activo: cada nivel = anterior x${multiploNivel} (pulsando "x2" ${vecesX2Val} ${vecesX2Val === 1 ? 'vez' : 'veces'} al subir de nivel).`;
+        } else {
+            modoIndicator.style.display = 'none';
+        }
 
         if (esDosDocenas) {
             cuota = 1.5;
@@ -837,6 +882,7 @@
         let zeroThreshold = coverZeroActivado ? parseK(document.getElementById('zeroThreshold').value) : NaN;
         let nextZeroBetThreshold = zeroThreshold;
         let apuestaAnteriorPosicion = 0;
+        let apuestaAnteriorFinal = 0;
 
         // Para resumen
         let primerApuesta = 0;
@@ -844,14 +890,6 @@
         let ultimoRiesgo = 0;
 
         for (let i = 1; i <= maxNiveles; i++) {
-            let gananciaObjetivoDeRonda;
-            if (modoSeguroActivado) {
-                gananciaObjetivoDeRonda = parseK(document.getElementById('gananciaDeseada').value);
-                if (isNaN(gananciaObjetivoDeRonda) || gananciaObjetivoDeRonda <= 0) break;
-            } else {
-                gananciaObjetivoDeRonda = apuestaInicial * (cuota - 1);
-            }
-
             let betOnZero = 0;
             if (coverZeroActivado && !isNaN(zeroThreshold) && zeroThreshold > 0 && perdidaAcumuladaTotal >= nextZeroBetThreshold) {
                 const zeroPayout = parseFloat(document.getElementById('zeroPayout').value) || 35;
@@ -860,7 +898,22 @@
                 nextZeroBetThreshold += zeroThreshold;
             }
 
-            let apuestaCalculada = (perdidaAcumuladaTotal + betOnZero + gananciaObjetivoDeRonda) / (cuota - 1);
+            let apuestaCalculada;
+
+            if (modoSoloX2Activado && i > 1) {
+                // Doblado fijo: la apuesta del nuevo nivel = apuesta anterior x 2^(veces x2)
+                apuestaCalculada = apuestaAnteriorFinal * Math.pow(2, vecesX2Val);
+            } else {
+                let gananciaObjetivoDeRonda;
+                if (modoSeguroActivado) {
+                    gananciaObjetivoDeRonda = parseK(document.getElementById('gananciaDeseada').value);
+                    if (isNaN(gananciaObjetivoDeRonda) || gananciaObjetivoDeRonda <= 0) break;
+                } else {
+                    gananciaObjetivoDeRonda = apuestaInicial * (cuota - 1);
+                }
+                apuestaCalculada = (perdidaAcumuladaTotal + betOnZero + gananciaObjetivoDeRonda) / (cuota - 1);
+            }
+
             if (apuestaCalculada <= 0) break;
 
             let apuestaFinalAjustada = Math.ceil(apuestaCalculada / fichaMinima) * fichaMinima;
@@ -897,7 +950,9 @@
             let textoAccionHTML = `<div class="action-steps-container">`;
             let etiquetaZona = esDosDocenas ? "Cantidad Por Docena" : "Cantidad Base";
             textoAccionHTML += `<div class="action-target">🎯 ${etiquetaZona}: <b>${formatK(apuestaPorPosicion)}</b></div>`;
-            textoAccionHTML += construirInstruccionHTML(apuestaPorPosicion, apuestaAnteriorPosicion, profiles[currentProfile].hasX2, profiles[currentProfile].chips);
+
+            const forzarX2 = (modoSoloX2Activado && i > 1) ? vecesX2Val : null;
+            textoAccionHTML += construirInstruccionHTML(apuestaPorPosicion, apuestaAnteriorPosicion, profiles[currentProfile].hasX2, profiles[currentProfile].chips, forzarX2);
 
             if (betOnZero > 0) {
                 textoAccionHTML += `<div class="action-steps-pill" style="background:var(--pill-zero-bg); color:var(--pill-zero-text); border-color:var(--pill-zero-border);">Al Cero: Colocar[ ${obtenerDesgloseFichas(betOnZero, profiles[currentProfile].chips)} ]</div>`;
@@ -958,6 +1013,7 @@
 
             perdidaAcumuladaTotal += apuestaFinalAjustada + betOnZero;
             apuestaAnteriorPosicion = apuestaPorPosicion;
+            apuestaAnteriorFinal = apuestaFinalAjustada;
         }
 
         // Resumen de riesgo
